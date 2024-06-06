@@ -1,0 +1,11 @@
+{
+  "app.js": "js/app.js",
+  "editor.js": "js/editor.js",
+  "runtime.js": "js/runtime.js",
+  "images/Footer-White-Label-Storage-Logo.png": "images/Footer-White-Label-Storage-Logo.png",
+  "images/blank-unit-image.png": "images/blank-unit-image.png",
+  "hmr.json": "hmr.json",
+  "images/star-fill.svg": "images/star-fill.svg",
+  "images/Accordion-Icon.svg": "images/Accordion-Icon.svg",
+  "entrypoints.json": "entrypoints.json"
+}

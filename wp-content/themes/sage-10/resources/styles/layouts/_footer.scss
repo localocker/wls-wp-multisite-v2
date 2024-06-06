@@ -1,0 +1,36 @@
+/* stylelint-disable no-descending-specificity */
+
+footer.footer {
+  padding-bottom: 60px;
+  padding-top: 60px;
+  color: $white;
+
+  .container {
+    @media (width >= 576px) and (width <= 767px) {
+      max-width: 100%;
+    }
+  }
+
+  .footer-logo {
+    width: auto;
+    height: 60px;
+
+    @media (width <= 991px) {
+      width: 100px;
+      height: auto;
+    }
+  }
+
+  .footer-contact-wrap {
+    grid-gap: 15px;
+    flex-flow: column;
+    margin-top: 30px;
+    display: flex;
+  }
+
+  .footer-contact-item {
+    grid-gap: 10px;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */

@@ -1,0 +1,14 @@
+{
+    "name": "wpwls/wpwls",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=7.4",
+        "symfony/http-foundation": "^6.0",
+        "guzzlehttp/psr7": "^2.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wpwls\\": ""
+        }
+    }
+}

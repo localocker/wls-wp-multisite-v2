@@ -1,0 +1,55 @@
+/* stylelint-disable no-descending-specificity */
+
+#site-header .container {
+  @media (width >= 576px) and (width <=767px) {
+    max-width: 100%;
+  }
+}
+
+header.banner {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.main-logo-wrap {
+  width: 110px;
+  padding-left: 0;
+}
+
+.main-logo {
+  height: 50px;
+
+  @media (width >= 992px) {
+    height: 55px;
+  }
+}
+
+.header-h1 {
+  font-size: calc(48 / 18) * 1em;
+
+  @media (width <=479px) {
+    font-size: calc(30 / 18) * 1em;
+  }
+
+  @media (width >= 480px) and (width <=767px) {
+    font-size: calc(36 / 18) * 1em;
+  }
+}
+
+.header-h4 {
+  font-size: calc(24 / 18) * 1em;
+
+  @media (width <= 767px) {
+    font-size: calc(18 / 18) * 1em;
+  }
+}
+
+.header-h5 {
+  font-size: calc(20 / 18) * 1em;
+
+  @media (width <= 767px) {
+    font-size: calc(18 / 18) * 1em;
+  }
+}
+
+/* stylelint-enable no-descending-specificity */
