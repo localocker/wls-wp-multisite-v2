@@ -11,7 +11,6 @@ $icon              = Model\Request\Listing::get_backup_icon( $backup_type );
 $icon_tooltip_text = Model\Request\Listing::get_backup_icon_tooltip_text( $backup_type );
 $destination_text  = Model\Request\Listing::get_backup_destination_text( $backup_type );
 $export_text       = Model\Request\Listing::get_backup_export_texts( $tpd_exp_status );
-
 ?>
 <tr class="sui-accordion-item log-row"
 	data-nonce="<?php echo esc_attr( wp_create_nonce( 'snapshot_get_backup_log' ) ); ?>"

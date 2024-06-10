@@ -28,8 +28,9 @@ use Google\Site_Kit\Core\Modules\Module_With_Tag_Trait;
 use Google\Site_Kit\Core\Modules\Tags\Module_Tag_Matchers;
 use Google\Site_Kit\Core\Permissions\Permissions;
 use Google\Site_Kit\Core\Site_Health\Debug_Data;
+use Google\Site_Kit\Modules\Ads\PAX_Config;
 use Google\Site_Kit\Modules\Ads\Settings;
-use Google\Site_Kit\Modules\Ads\Tag_Guard;
+use Google\Site_Kit\Modules\Ads\Has_Tag_Guard;
 use Google\Site_Kit\Modules\Ads\Tag_Matchers;
 use Google\Site_Kit\Modules\Ads\Web_Tag;
 use Google\Site_Kit\Core\Tags\Guards\Tag_Environment_Type_Guard;
@@ -103,6 +104,11 @@ final class Ads extends Module implements Module_With_Assets, Module_With_Debug_
 		);
 
 		if ( Feature_Flags::enabled( 'adsPax' ) ) {
+			$input                      = $this->context->input();
+			$is_googlesitekit_dashboard = 'googlesitekit-dashboard' === $input->filter( INPUT_GET, 'page' );
+			$is_ads_slug                = 'ads' === $input->filter( INPUT_GET, 'slug' );
+			$is_re_auth                 = $input->filter( INPUT_GET, 'reAuth' );
+
 			$assets[] = new Script_Data(
 				'googlesitekit-ads-pax-config',
 				array(
@@ -112,31 +118,34 @@ final class Ads extends Module implements Module_With_Assets, Module_With_Debug_
 							return array();
 						}
 
-						return array(
-							'authAccess'      => array(
-								'oauthTokenAccess' => array(
-									'token' => (string) $this->authentication->get_oauth_client()->get_access_token(),
-								),
-							),
-							'locale'          => substr( $this->context->get_locale( 'user' ), 0, 2 ),
-							'debuggingConfig' => array(
-								'env' => 'PROD',
-							),
-						);
+						$config = new PAX_Config( $this->context, $this->authentication->token() );
+
+						return $config->get();
 					},
 				)
 			);
-
-			if ( current_user_can( Permissions::VIEW_AUTHENTICATED_DASHBOARD ) && $this->is_connected() ) {
+			// Integrator should be included if either Ads module is connected already,
+			// or we are on the Ads module setup screen.
+			if (
+				current_user_can( Permissions::VIEW_AUTHENTICATED_DASHBOARD ) &&
+				(
+					// Integrator should be included if either:
+					// The Ads module is already connected.
+					$this->is_connected() ||
+					// Or the user is on the Ads module setup screen.
+					is_admin() && $is_googlesitekit_dashboard && $is_ads_slug && $is_re_auth
+				)
+			) {
 				$assets[] = new Script(
 					'googlesitekit-ads-pax-integrator',
 					array(
-						'src'          => 'https://www.gstatic.com/pax/dev/pax_integrator.js',
+						'src'          => 'https://www.gstatic.com/pax/latest/pax_integrator.js',
 						'execution'    => 'async',
 						'dependencies' => array(
 							'googlesitekit-ads-pax-config',
 							'googlesitekit-modules-data',
 						),
+						'version'      => null,
 					)
 				);
 			}
@@ -218,13 +227,26 @@ final class Ads extends Module implements Module_With_Assets, Module_With_Debug_
 	 * A module being connected means that all steps required as part of its activation are completed.
 	 *
 	 * @since 1.122.0
+	 * @since 1.127.0 Add additional check to account for paxConversionID and extCustomerID as well when feature flag is enabled.
 	 *
 	 * @return bool True if module is connected, false otherwise.
 	 */
 	public function is_connected() {
 		$options = $this->get_settings()->get();
 
-		return parent::is_connected() && ! empty( $options['conversionID'] );
+		if ( Feature_Flags::enabled( 'adsPax' ) ) {
+			if ( empty( $options['conversionID'] ) && empty( $options['paxConversionID'] ) && empty( $options['extCustomerID'] ) ) {
+				return false;
+			}
+
+			return parent::is_connected();
+		}
+
+		if ( empty( $options['conversionID'] ) ) {
+			return false;
+		}
+
+		return parent::is_connected();
 	}
 
 	/**
@@ -260,7 +282,7 @@ final class Ads extends Module implements Module_With_Assets, Module_With_Debug_
 		}
 
 		$tag->use_guard( new Tag_Verify_Guard( $this->context->input() ) );
-		$tag->use_guard( new Tag_Guard( $this->get_settings() ) );
+		$tag->use_guard( new Has_Tag_Guard( $ads_conversion_id ) );
 		$tag->use_guard( new Tag_Environment_Type_Guard() );
 
 		if ( ! $tag->can_register() ) {

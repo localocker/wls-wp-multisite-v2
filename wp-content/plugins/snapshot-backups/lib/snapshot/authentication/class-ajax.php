@@ -291,10 +291,6 @@ class Ajax {
 			wp_send_json_error( array( 'message' => __( 'You are not authorized to perform this action.', 'snapshot' ) ) );
 		}
 
-		if ( ! Env::is_dev_mode() ) {
-			wp_send_json_error( array( 'message' => __( 'Sorry, something went wrong!', 'snapshot' ) ) );
-		}
-
 		$auth_model = new Authentication();
 		$response   = $auth_model->delete();
 

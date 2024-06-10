@@ -158,19 +158,16 @@ wp_nonce_field( 'delete_snapshot_logs', '_wpnonce-delete_snapshot_logs' );
 								<?php esc_html_e( 'Password Protection', 'snapshot' ); ?>
 							</h2>
 
-							<?php if ( Env::is_dev_mode() ) : ?>
-								<div class="sui-actions-right">
-									<a href="#" class="sui-button sui-button-ghost sui-button-red sui-tooltip sui-tooltip-top-right btn-delete--http_creds" data-tooltip="<?php esc_attr_e( 'Delete authentication credentials', 'snapshot' ); ?>">
-										<span class="sui-loading-text">
-											<span class="sui-icon-trash" aria-hidden="true"></span>
-											<?php esc_html_e( 'Delete', 'snapshot' ); ?>
-										</span>
+							<div class="sui-actions-right">
+								<a href="#" class="sui-button sui-button-ghost sui-button-red sui-tooltip sui-tooltip-top-right btn-delete--http_creds" data-tooltip="<?php esc_attr_e( 'Delete authentication credentials', 'snapshot' ); ?>">
+									<span class="sui-loading-text">
+										<span class="sui-icon-trash" aria-hidden="true"></span>
+										<?php esc_html_e( 'Delete', 'snapshot' ); ?>
+									</span>
 
-										<span class="sui-icon-loader sui-loading" aria-hidden="true"></span>
-									</a>
-								</div>
-							<?php endif; ?>
-
+									<span class="sui-icon-loader sui-loading" aria-hidden="true"></span>
+								</a>
+							</div>
 						</div>
 
 						<div class="sui-box-body">

@@ -56,7 +56,7 @@ foreach ( $files as $file ) :
 		<div class="exp-last-item-overlay"></div>
 		<div class="exp-load-more-content">
 			<span class="sui-icon-loader sui-loading" aria-hidden="true"></span>
-			<span class="text"><?php echo esc_html__( 'Please wait, loading more result', 'snapshot' ); ?></span>
+			<span class="text"><?php echo esc_html__( 'Please wait, loading more results', 'snapshot' ); ?></span>
 		</div>
 	</div>
 		<?php

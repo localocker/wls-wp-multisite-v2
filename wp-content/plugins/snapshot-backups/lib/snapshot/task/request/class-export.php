@@ -32,8 +32,10 @@ class Export extends Task {
 	public function apply( $args = array() ) {
 		$request_model = $args['request_model'];
 		$send_email    = ( isset( $args['send_email'] ) && false === $args['send_email'] ) ? false : true;
+		$email         = ( isset( $args['email_account'] ) ) ? $args['email_account'] : '';
 
-		$response = $request_model->export_backup( $args['backup_id'], $send_email );
+		$response = $request_model->export_backup( $args['backup_id'], $send_email, $email );
+
 		if ( $request_model->add_errors( $this ) ) {
 			return false;
 		}

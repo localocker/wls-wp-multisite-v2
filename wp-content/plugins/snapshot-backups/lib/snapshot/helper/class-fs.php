@@ -57,6 +57,10 @@ class Fs {
 	 * @return array
 	 */
 	public static function list( $path, $chunk_page ) {
+		if ( ! is_dir( $path ) ) {
+			return array();
+		}
+
 		$iterables = ( new Iterables( $path ) )->get_iterables();
 
 		$files            = array();

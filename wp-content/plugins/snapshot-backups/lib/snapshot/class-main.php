@@ -270,7 +270,7 @@ class Main extends Singleton {
 	 * @return array
 	 */
 	public function wpe_allow_heartbeat( $heartbeat_allowed_pages ) {
-		if ( 'snapshot-backups' === filter_input( INPUT_GET, 'page', FILTER_SANITIZE_STRING ) ) {
+		if ( 'snapshot-backups' === filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ) {
 			array_push( $heartbeat_allowed_pages, 'admin.php' );
 		}
 		return array_unique( $heartbeat_allowed_pages );

@@ -49,6 +49,16 @@ class Admin extends Controller {
 
 		add_filter( 'plugin_action_links_' . SNAPSHOT_BASE_NAME, array( $this, 'plugin_links' ) );
 		add_filter( 'network_admin_plugin_action_links_' . SNAPSHOT_BASE_NAME, array( $this, 'plugin_links' ) );
+
+		if ( get_site_transient( 'snapshot_download_link_notification' ) ) {
+			if ( is_network_admin() ) {
+				add_action( 'network_admin_notices', array( $this, 'snapshot_backup_exported_notification' ) );
+			} else {
+				add_action( 'admin_notices', array( $this, 'snapshot_backup_exported_notification' ) );
+			}
+			add_action( 'admin_print_footer_scripts', array( $this, 'snapshot_print_admin_scripts' ) );
+			add_action( 'admin_print_styles', array( $this, 'snapshot_print_admin_styles' ) );
+		}
 	}
 
 	/**
@@ -170,6 +180,129 @@ class Admin extends Controller {
 		$links['snapshot_settings'] = '<a href="' . esc_url( $settings_link ) . '" aria-label="' . esc_attr__( 'Go to Snapshot Settings', 'snapshot' ) . '">' . esc_html__( 'Settings', 'snapshot' ) . '</a>';
 
 		return array_reverse( $links );
+	}
+
+	/**
+	 * Display the backup exported notification notice.
+	 *
+	 * @return void
+	 */
+	public function snapshot_backup_exported_notification() {
+		$template = new Helper\Template();
+		$template->render(
+			'notices/exported-backup-notification',
+			array(
+				'backups_page_url' => network_admin_url( 'admin.php?page=snapshot-backups' ),
+			)
+		);
+	}
+
+	/**
+	 * Adds some style to the backup exported notification.
+	 *
+	 * @return void
+	 */
+	public function snapshot_print_admin_styles() {
+		?>
+	<style id="snapshot-admin-styles">
+		.notice.snapshot-global-notice {
+			opacity: 0;
+			height: auto;
+			border-left-color: rgba(26, 188, 156, 1);
+			border-radius: 4px;
+			border-left-width: 3px;
+		}
+
+		.notice.snapshot-global-notice p a{
+			text-decoration: none;
+			color: rgba( 23, 168, 227, 1 );
+			font-weight: 600;
+		}
+
+		.snapshot-global-notice .dashicons-yes-alt {
+			color: rgba(26, 188, 156, 1);
+			width: 18px;
+			height: 18px;
+			display: inline-block;
+			font-size: 18px;
+			margin-top: 1px;
+			margin-right: 5px;
+		}
+
+		.sui-wrap .snapshot-global-notice {
+			margin: 0 0 30px 0;
+		}
+
+		.sui-wrap .snapshot-global-notice p {
+			margin-bottom: 0 !important;
+			font-size: 13px !important;
+			line-height: 2.5 !important;
+		}
+
+		.sui-wrap .snapshot-global-notice .dashicons-yes-alt {
+			line-height: 1.5;
+		}
+	</style>
+		<?php
+	}
+
+	/**
+	 * Adds some script to the backup exported notification.
+	 *
+	 * @return void
+	 */
+	public function snapshot_print_admin_scripts() {
+		?>
+		<script id="snapshot-admin-scripts">
+			const nonce = '<?php echo esc_js( wp_create_nonce( 'snapshot-dismiss-exported-backup-notification' ) ); ?>';
+
+			document.addEventListener( 'DOMContentLoaded', ( event ) => {
+				const suiHeader = document.querySelector( '.sui-header' );
+				const notice = document.querySelector( '#snapshot-exported-backup-notification' );
+				var box = document.querySelector( '.sui-box' );
+
+				if ( box && notice ) {
+					// Insert notice after the title on Snapshot and WPMUDEV pages.
+					box.parentNode.insertBefore( notice, box.previousSibling);
+				}
+
+				if ( suiHeader && notice ) {
+					// Since bottom offset is quite large, we need to control the margin.
+					suiHeader.style.marginBottom = '10px';
+				}
+
+				// Delay the display of notice to prevent the layout shift.
+				setTimeout(	() => {
+					if ( notice ) {
+						notice.style.opacity = 1;
+					}
+				}, 50 );
+
+				notice.addEventListener( 'click', ( event ) => {
+					const el = event.target;
+					if ( el.classList.contains('snapshot-notice__dismiss' ) || el.classList.contains( 'notice-dismiss' ) ) {
+						event.preventDefault();
+
+						// Send a request to actually delete the transient so that the notice doesn't re-appear.
+						fetch(`${ajaxurl}?action=snapshot-dismiss_export_notice&_wpnonce=${nonce}`, {
+							method: 'GET',
+							credentials: 'same-origin'
+						} )
+						.then( ( response ) => response.json() )
+						.then( ( result ) => {
+							if ( result.success ) {
+								el.closest( '.snapshot-global-notice' ).remove();
+								if ( 'a' === el.tagName.toLowerCase() && window.location.href !== el.href ) {
+									// Since we prevented the default behavior of a tag, now we need to redirect the user.
+									window.location.href = el.href;
+								}
+							}
+						} );
+					}
+				} );
+			} );
+		</script>
+		<?php
 	}
 
 	/**
@@ -562,6 +695,7 @@ class Admin extends Controller {
 				'explorer' => array(
 					'nonce' => wp_create_nonce( 'snapshot-file-explorer' ),
 				),
+				'exported' => get_site_transient( 'snapshot_download_link_immediate_notification' ) ? 'true' : 'false',
 			)
 		);
 
@@ -603,6 +737,10 @@ class Admin extends Controller {
 		$this->localized_messages['onboarding_schedule_close'] = __( 'You set up your account successfully. You are now ready to <a href="#">create your first backup</a> or you can <a href="#">set a schedule</a> to create backups automatically.', 'snapshot' );
 		/* translators: %s - website name */
 		$this->localized_messages['backup_export_success'] = __( 'We are preparing your backup export for <strong>%s</strong>, it will be sent to your email when it is ready.', 'snapshot' );
+		/* translators: %s - website name */
+		$this->localized_messages['backup_export_success_download'] = __( 'We are preparing your backup export for <strong>%s</strong>, You will be notified once the download is ready.', 'snapshot' );
+		$this->localized_messages['backup_export_download_ready']   = __( 'Your backup has been successfully exported and is available for download. Please download your backup within the next 7 days before the link expires.', 'snapshot' );
+
 		/* translators: %s - backup name */
 		$this->localized_messages['backup_export_already_requested'] = __( 'You’ve already requested a download link for the backup <strong>%s</strong>. The backup export is in progress, and a download link will be sent to your email when complete. Please wait an hour before submitting another request.', 'snapshot' );
 

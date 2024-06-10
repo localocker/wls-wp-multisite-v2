@@ -79,8 +79,8 @@ class Progress extends Model\Request {
 
 			$running_backup = json_decode( wp_remote_retrieve_body( $response ), true );
 
-			$backup_status = $running_backup['snapshot_status'];
-			$exports       = $running_backup['tpd_exp_status'];
+			$backup_status = isset( $running_backup['snapshot_status'] ) ? $running_backup['snapshot_status'] : 'just_triggered';
+			$exports       = isset( $running_backup['tpd_exp_status'] ) ? $running_backup['tpd_exp_status'] : array();
 
 			$backup_status = apply_filters( 'snapshot_custom_service_error', $backup_status );
 			Controller\Service\Backup::save_backup_error( $backup['id'], $backup_status, time() );

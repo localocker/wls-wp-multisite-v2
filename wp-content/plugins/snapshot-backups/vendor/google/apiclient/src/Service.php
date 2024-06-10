@@ -38,7 +38,7 @@ class Service
         } elseif (is_array($clientOrConfig)) {
             $this->client = new Client($clientOrConfig ?: []);
         } else {
-            $errorMessage = 'constructor must be array or instance of Google\Client';	  	 			   	  	  	 		  
+            $errorMessage = 'constructor must be array or instance of Google\Client';
             if (class_exists('TypeError')) {
                 throw new TypeError($errorMessage);
             }

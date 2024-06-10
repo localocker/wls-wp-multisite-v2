@@ -1,9 +1,18 @@
 Plugin Name: Snapshot
 Author: WPMU DEV
-Tested up to: 6.5.2
+Tested up to: 6.5.3
 
 Change Log:
 ----------------------------------------------------------------------
+= 4.26.0 ( 2024-05-28 ) =
+
+- Improvement: Option to modify the destination email address for backup downloads
+- Improvement: Option to download backup files from the WP admin dashboard
+- Fix: Delete button is missing from Password Protection settings on SiteGround sites
+- Fix: Typos and grammatical errors
+- Fix: Deprecated FILTER_SANITIZE_STRING constant when Snapshot is installed on WPEngine sites
+- Fix: Snapshot Installer not picking the backup file correctly
+
 = 4.25.0 ( 2024-04-16 ) =
 
 - Improvement: Add support for constant defined for chunking tables backup into specific number of rows
@@ -496,4 +505,4 @@ Change Log:
 - New: Incremental backups
 
 
-1190305-1715289138-ai
+1190305-1718031850-au

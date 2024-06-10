@@ -109,6 +109,11 @@ class Explorer extends Singleton {
 	 */
 	public static function tree( $path, $chunk_page, $type = 'root' ) {
 		$files_data = Fs::list( $path, $chunk_page );
+
+		if ( empty( $files_data ) ) {
+			return '';
+		}
+
 		if ( count( $files_data['files'] ) <= 1 ) {
 			return '';
 		}

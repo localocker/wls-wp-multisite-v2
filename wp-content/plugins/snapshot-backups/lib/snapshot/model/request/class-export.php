@@ -45,10 +45,11 @@ class Export extends Model\Request {
 	 *
 	 * @param string $backup_id Backup id.
 	 * @param bool   $send_email Whether to send email (for downloads) or not (for restores).
+	 * @param string $email Email address to send the download link to.
 	 *
-	 * @return array|mixed|object
+	 * @return mixed
 	 */
-	public function export_backup( $backup_id, $send_email ) {
+	public function export_backup( $backup_id, $send_email, $email = '' ) {
 		$method = 'post';
 		$path   = $this->get_api_url();
 
@@ -56,6 +57,10 @@ class Export extends Model\Request {
 			'snapshot_id' => $backup_id,
 			'send_email'  => $send_email,
 		);
+
+		if ( $email && ! empty( $email ) ) {
+			$data['email_account'] = $email;
+		}
 
 		$response = $this->request( $path, $data, $method );
 

@@ -40,8 +40,8 @@ class Log {
 	/**
 	 * Logs with an arbitrary level.
 	 *
-	 * @param type   $level Log level.
-	 * @param type   $message Message.
+	 * @param string   $level Log level Example: error | warning | notice | debug | info.
+	 * @param string   $message Message.
 	 * @param array  $context Context or any extra params.
 	 * @param string $backup_id Backup id.
 	 */
@@ -491,7 +491,7 @@ class Log {
 	/**
 	 * Log message with "info" level
 	 *
-	 * @param type   $message Message.
+	 * @param string   $message Message.
 	 * @param array  $context Context or any extra params.
 	 * @param string $backup_id Backup id.
 	 */
@@ -502,7 +502,7 @@ class Log {
 	/**
 	 * Log message with "debug" level
 	 *
-	 * @param type   $message Message.
+	 * @param string   $message Message.
 	 * @param array  $context Context or any extra params.
 	 * @param string $backup_id Backup id.
 	 */
@@ -513,7 +513,7 @@ class Log {
 	/**
 	 * Log message with "notice" level
 	 *
-	 * @param type   $message Message.
+	 * @param string   $message Message.
 	 * @param array  $context Context or any extra params.
 	 * @param string $backup_id Backup id.
 	 */
@@ -524,7 +524,7 @@ class Log {
 	/**
 	 * Log message with "warning" level
 	 *
-	 * @param type   $message Message.
+	 * @param string   $message Message.
 	 * @param array  $context Context or any extra params.
 	 * @param string $backup_id Backup id.
 	 */
@@ -535,7 +535,7 @@ class Log {
 	/**
 	 * Log message with "error" level
 	 *
-	 * @param type   $message Message.
+	 * @param string   $message Message.
 	 * @param array  $context Context or any extra params.
 	 * @param string $backup_id Backup id.
 	 */

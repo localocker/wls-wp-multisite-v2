@@ -101,9 +101,3 @@ if ( true === $welcome_modal && ! $need_reactivate_membership ) {
 		)
 	);
 }
-
-$skip_whats_new = false; // Skip What's new modal for current release.
-if ( ! Settings::get_whats_new_seen() && ! $need_reactivate_membership && ! $skip_whats_new && ! Settings::is_branding_docs_hidden() ) { //phpcs:ignore
-	//phpcs:ignore
-	// $this->render( 'modals/whats-new' );
-}

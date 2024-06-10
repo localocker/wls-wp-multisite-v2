@@ -54,6 +54,9 @@ class Listing extends Model\Request {
 		$backup_info['id']   = isset( $backup['snapshot_id'] ) ? $backup['snapshot_id'] : null;
 		$backup_info['size'] = isset( $backup['snapshot_size'] ) ? ( '0' === $backup['snapshot_size'] ? '1 MB' : $backup['snapshot_size'] . ' MB' ) : '? MB';
 
+		$export_link     = get_site_transient( 'snapshot_export_' . $backup_info['id'] );
+		$has_export_link = $export_link ? true : false;
+
 		$backup_info['timestamp'] = strtotime( $backup['created_at'] );
 		$destination_icon_details = Settings::get_icon_details();
 
@@ -100,6 +103,15 @@ class Listing extends Model\Request {
 		$row_icon  = ( $failed_backup )
 		? 'sui-icon-warning-alert'
 		: self::get_backup_icon( $backup['type'] );
+
+		$row_download_button = '';
+
+		if ( $has_export_link ) {
+			$row_download_button = '<a class="sui-button-icon sui-button-green snapshot-download--backup" href="' . esc_url( $export_link ) . '" target="_blank">
+				<span class="sui-icon-download" aria-hidden="true"></span>
+				<span class="sui-screen-reader-text">' . esc_html__( 'Download backup', 'snapshot' ) . '</span>
+			</a>';
+		}
 
 		$row_accordion_indicator = ( $failed_backup ) ? '' : '<span class="sui-accordion-open-indicator" aria-label="Expand"><span class="sui-icon-chevron-down" aria-hidden="true"></span></span>';
 		$nonce                   = wp_create_nonce( 'snapshot_get_backup_log' );
@@ -164,6 +176,7 @@ class Listing extends Model\Request {
 		if ( 'null' !== $description ) {
 			$desc_html = '<span class="sui-description">' . wp_kses_post( $description ) . '</span>';
 		}
+
 		$backup_info['row'] =
 		'<tr class="snapshot-row' . esc_attr( $row_class ) . '" data-backup_id="' . esc_attr( $backup['snapshot_id'] ) . '" data-destination_text="' . esc_attr( $export_text['destination']['text'] ) . '" data-destination_tooltip="' . esc_attr( $export_text['destination']['tooltip'] ) . '">
 	<td class="sui-hidden-xs sui-table-item-title">
@@ -199,9 +212,12 @@ class Listing extends Model\Request {
 		</span>
 	</td>
 	<td class="sui-hidden-xs sui-table-item-title gray snapshot-schedule-column last-child">
-		<span class="frequency">' . esc_html( $frequency_human ) . '</span>' .
-		$row_failed_buttons .
-		$row_accordion_indicator . '
+		<div style="display: flex; justify-content: flex-end;">
+			<span class="frequency" style="margin-right: auto;">' . esc_html( $frequency_human ) . '</span>' .
+			$row_failed_buttons .
+			$row_download_button .
+			$row_accordion_indicator . '
+		</div>
 	</td>
 
 	<td class="sui-hidden-sm sui-hidden-md sui-hidden-lg sui-table-item-title mobile-row" colspan="4">

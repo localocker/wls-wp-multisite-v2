@@ -52,6 +52,7 @@ class Ajax extends Controller {
 		add_action( 'wp_ajax_snapshot-json_validate_email', array( $this, 'json_validate_email' ) );
 		add_action( 'wp_ajax_snapshot-whats_new_seen', array( $this, 'json_whats_new_seen' ) );
 		add_action( 'wp_ajax_snapshot-tutorials_slider_seen', array( $this, 'json_tutorials_slider_seen' ) );
+		add_action( 'wp_ajax_snapshot-dismiss_export_notice', array( $this, 'dismiss_export_notice' ) );
 
 		/**
 		 * Instantiate the explorer class, that is going to handle the AJAX request.
@@ -91,6 +92,7 @@ class Ajax extends Controller {
 			// All good.
 			return true;
 		}
+
 		return wp_send_json_error(
 			__( 'You are not authorized to perform this action.', 'snapshot' )
 		);
@@ -835,6 +837,15 @@ class Ajax extends Controller {
 	public function json_tutorials_slider_seen() {
 		$this->do_request_sanity_check( 'snapshot_tutorials_slider_seen', self::TYPE_POST );
 		Settings::set_snapshot_tutorials_seen();
+		wp_send_json_success();
+	}
+
+	/**
+	 * Dismiss the export notice.
+	 */
+	public function dismiss_export_notice() {
+		$this->do_request_sanity_check( 'snapshot-dismiss-exported-backup-notification', self::TYPE_GET );
+		delete_site_transient( 'snapshot_download_link_notification' );
 		wp_send_json_success();
 	}
 }

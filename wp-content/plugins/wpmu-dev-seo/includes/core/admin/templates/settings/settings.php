@@ -12,7 +12,7 @@ $this->render_view( 'before-page-container' );
 	$this->render_view(
 		'page-header',
 		array(
-			'title'                 => esc_html__( 'SmartCrawl Settings', 'wds' ),
+			'title'                 => esc_html__( 'Settings', 'wds' ),
 			'documentation_chapter' => 'settings',
 			'utm_campaign'          => 'smartcrawl_settings_docs',
 		)

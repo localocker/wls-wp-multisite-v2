@@ -32,6 +32,10 @@ if ( ! empty( get_site_option( 'snapshot_remove_on_uninstall' ) ) ) {
 	delete_site_option( 'snapshot-presets_config' );
 
 	update_site_option( 'snapshot_activate_schedule', 0 );
+
+	// Transients related with snapshot backup export notifications.
+	delete_site_transient( 'snapshot_download_link_notification' );
+	delete_site_transient( 'snapshot_download_link_immediate_notification' );
 } else {
 	update_site_option( 'snapshot_activate_schedule', 1 );
 }

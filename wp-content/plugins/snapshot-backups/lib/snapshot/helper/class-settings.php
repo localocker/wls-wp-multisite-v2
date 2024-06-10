@@ -191,8 +191,7 @@ class Settings {
 		$patch_version = self::get_plugin_patch_version();
 		if ( ! $seen_version ) {
 			// Fresh install.
-			self::set_whats_new_seen( $patch_version );
-			return true;
+			return false;
 		}
 		return version_compare( $patch_version, $seen_version ) <= 0;
 	}

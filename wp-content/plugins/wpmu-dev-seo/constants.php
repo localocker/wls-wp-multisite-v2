@@ -9,8 +9,8 @@
 /**
  * Internal constants, not to be overridden
  */
-define( 'SMARTCRAWL_VERSION', '3.10.6' );
-define( 'SMARTCRAWL_BUILD', '1715357898572' );
+define( 'SMARTCRAWL_VERSION', '3.10.8' );
+define( 'SMARTCRAWL_BUILD', '1717391733542' );
 define( 'SMARTCRAWL_BUILD_TYPE', 'full' );
 define( 'SMARTCRAWL_SUI_VERSION', '2.12.23' );
 define( 'SMARTCRAWL_PACKAGE_ID', 167 );

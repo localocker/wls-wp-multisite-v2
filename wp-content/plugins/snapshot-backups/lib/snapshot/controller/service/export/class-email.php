@@ -50,6 +50,40 @@ class Email extends Controller\Service {
 			return $this->send_response_error( $validated_params, $request );
 		}
 
+		set_site_transient(
+			'snapshot_export_' . $validated_params['snapshot_id'],
+			$validated_params['export_link'],
+			7 * DAY_IN_SECONDS
+		);
+
+		$option_name = 'snapshot_direct_download_export_' . $validated_params['snapshot_id'];
+
+		if ( get_site_transient( $option_name ) ) {
+			// Set another transient for notification.
+			// Since the download link expires after 7 days, it only makes sense to show the notification once within 7 days.
+			// Once the notification is shown, we will delete the transients immediately.
+			set_site_transient(
+				'snapshot_download_link_notification',
+				$validated_params['snapshot_id'],
+				7 * DAY_IN_SECONDS
+			);
+			set_site_transient(
+				'snapshot_download_link_immediate_notification',
+				$validated_params['snapshot_id'],
+				7 * DAY_IN_SECONDS
+			);
+
+			// Some cleanup.
+			delete_site_transient( $option_name );
+			// Exiting early and sending a successful response to the API.
+			return $this->send_response_success( true, $request );
+		}
+
+		if ( array_key_exists( 'send_email', $data ) && '0' === $data['send_email'] ) {
+			Log::info( __( 'Export link will not be sent via email.', 'snapshot' ) );
+			return $this->send_response_success( true, $request );
+		}
+
 		$model  = new Model\Export\Email();
 		$export = array();
 

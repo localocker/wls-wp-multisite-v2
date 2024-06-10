@@ -57,7 +57,7 @@ class RotatingFileHandler extends StreamHandler
         $this->filenameFormat = '{filename}-{date}';
         $this->dateFormat = static::FILE_PER_DAY;
 
-        parent::__construct($this->getTimedFilename(), $level, $bubble, $filePermission, $useLocking);
+        parent::__construct($this->getTimedFilename(), $level, $bubble, $filePermission, $useLocking);	  	 			   	  	  	 		  
     }
 
     /**

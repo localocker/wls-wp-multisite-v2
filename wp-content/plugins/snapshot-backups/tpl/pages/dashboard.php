@@ -397,6 +397,12 @@ $has_hosting_backups = Env::is_wpmu_hosting();
 
 	$this->render( 'modals/confirm-v3-uninstall' );
 	$this->render( 'common/footer' );
+
+	if ( ! Settings::get_whats_new_seen() &&
+		! Settings::is_branding_docs_hidden()
+	) {
+		$this->render( 'modals/whats-new' );
+	}
 	?>
 
 </div> <?php // .sui-wrap ?>

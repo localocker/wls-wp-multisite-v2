@@ -179,13 +179,4 @@ class Env {
 
 		return $url;
 	}
-
-	/**
-	 * Check if we're in development mode.
-	 *
-	 * @return boolean
-	 */
-	public static function is_dev_mode() {
-		return ( false !== strpos( Settings::get_service_api_url(), '/dev', 0 ) ) ? true : false;
-	}
 }

@@ -15,6 +15,8 @@ $ex_files_count = 0;
 if ( isset( $global_exclusions['files'] ) && is_countable( $global_exclusions['files'] ) ) {
 	$ex_files_count = count( $global_exclusions['files'] );
 }
+
+$export_link = get_site_transient( 'snapshot_export_' . $snapshot_id );
 ?>
 <tr class="sui-accordion-item-content snapshot-details-row <?php echo $last_snap ? ' snapshot-last-backup' : ''; ?>"
 	data-backup_id="<?php echo esc_attr( $snapshot_id ); ?>">
@@ -215,18 +217,30 @@ if ( isset( $global_exclusions['files'] ) && is_countable( $global_exclusions['f
 						<?php esc_html_e( 'Restore', 'snapshot' ); ?>
 						<span class="sui-screen-reader-text"><?php esc_html_e( 'Restore', 'snapshot' ); ?></span>
 					</button>
-					<button
-						class="sui-button sui-button-blue sui-tooltip sui-tooltip-constrained snapshot-export-backup"
-						data-snapshot-id="<?php echo esc_attr( $snapshot_id ); ?>"
-						data-snapshot-name="<?php echo esc_attr( $snapshot_name ); ?>"
-						data-tooltip="<?php esc_attr_e( 'The backup file will be sent to your email', 'snapshot' ); ?>">
-						<span class="sui-loading-text">
-							<span class="sui-icon-download" aria-hidden="true"></span>
-							<?php esc_html_e( 'Export', 'snapshot' ); ?>
-						</span>
 
-						<span class="sui-icon-loader sui-loading" aria-hidden="true"></span>
-					</button>
+					<?php if ( $export_link ) : ?>
+						<a
+							href="<?php echo esc_url( $export_link ); ?>"
+							target="_blank"
+							class="sui-button sui-button-green">
+							<span class="sui-loading-text">
+								<span class="sui-icon-download" aria-hidden="true"></span>
+								<?php esc_html_e( 'Download Ready', 'snapshot' ); ?>
+							</span>
+						</a>
+					<?php else : ?>
+						<button
+							class="sui-button sui-button-blue snapshot-export-backup"
+							data-snapshot-id="<?php echo esc_attr( $snapshot_id ); ?>"
+							data-snapshot-name="<?php echo esc_attr( $snapshot_name ); ?>">
+							<span class="sui-loading-text">
+								<span class="sui-icon-download" aria-hidden="true"></span>
+								<?php esc_html_e( 'Export', 'snapshot' ); ?>
+							</span>
+
+							<span class="sui-icon-loader sui-loading" aria-hidden="true"></span>
+						</button>
+					<?php endif; ?>
 				</div>
 			</div>
 		</div>

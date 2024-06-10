@@ -5,7 +5,7 @@ namespace SmartCrawl;
 use SmartCrawl\Admin\Settings\Onpage;
 
 $archive_post_type        = empty( $archive_post_type ) ? '' : $archive_post_type;
-$archive_post_type_robots = empty( $archive_post_type_robots ) ? '' : $archive_post_type_robots;
+$archive_post_type_robots = empty( $archive_post_type_robots ) ? '' : $archive_post_type_robots;	  	   	 	 	  	  	   
 $macros                   = array_merge(
 	Onpage::get_pt_archive_macros(),
 	Onpage::get_general_macros()

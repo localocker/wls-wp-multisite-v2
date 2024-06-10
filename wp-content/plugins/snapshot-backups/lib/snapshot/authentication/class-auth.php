@@ -149,13 +149,13 @@ class Auth {
 
 		$response = wp_remote_get( esc_url( site_url() ), $args );
 
-		if ( is_wp_error( $response ) && in_array( 'http_request_failed', $response->get_error_codes() , true ) ) {
+		if ( is_wp_error( $response ) && in_array( 'http_request_failed', $response->get_error_codes(), true ) ) {
 			/**
 			 * This is an edge case here caught on some specific sites like example.sg-host.com, example.kinsta.cloud
 			 * Looks like they don't provide a valid SSL certificate for these sort of temporary domains.
 			 */
 			$args['sslverify'] = false;
-			$response = wp_remote_get( esc_url( site_url() ), $args );
+			$response          = wp_remote_get( esc_url( site_url() ), $args );
 		}
 
 		return $response;

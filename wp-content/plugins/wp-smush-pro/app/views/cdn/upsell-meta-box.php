@@ -6,7 +6,7 @@
  * @package WP_Smush
  */
 
-use Smush\Core\Helper;
+use Smush\Core\Helper;	        	 	  		   	 	
 
 if ( ! defined( 'WPINC' ) ) {
 	die;

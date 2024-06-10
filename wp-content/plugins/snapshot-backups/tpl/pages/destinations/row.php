@@ -4,6 +4,7 @@
  *
  * @package snapshot
  */
+
 use WPMUDEV\Snapshot4\Model\Request\Destination\Googledrive;
 
 $failed_exports_list = get_site_option( 'snapshot_failed_third_party_destination_exports', array() );
@@ -82,7 +83,7 @@ if ( 'sftp' === $tpd_type ) {
 	$row_class = 'destination-type-ftp';
 }
 
-$is_failed_export_gdrive = ! empty( $google_drives ) && in_array( $tpd_id, $google_drives );
+$is_failed_export_gdrive = ! empty( $google_drives ) && in_array( $tpd_id, $google_drives, true );
 
 $oauth_link = '#';
 if ( 'gdrive' === $tpd_type && $is_failed_export_gdrive ) {
@@ -103,15 +104,19 @@ if ( 'gdrive' === $tpd_type && $is_failed_export_gdrive ) {
 	<?php
 	if ( 'aws' === $tpd_type && isset( $tpd_bucket ) ) :
 		?>
-		data-tpd_bucket="<?php echo esc_attr( $tpd_bucket ); ?>" <?php endif; ?>
+			data-tpd_bucket="<?php echo esc_attr( $tpd_bucket ); ?>"
+	<?php endif; ?>
 	data-tpd_email="<?php echo isset( $email ) ? esc_attr( $email ) : ''; ?>"
 	<?php if ( 'ftp' === $tpd_type || 'sftp' === $tpd_type ) : ?>
-	data-ftp-passive-mode="<?php echo ( isset( $meta['ftp_mode'] ) && '1' === $meta['ftp_mode'] ) ? 1 : 0; ?>"
-	data-ftp-timeout="<?php echo ( isset( $meta['ftp_timeout'] ) ) ? esc_attr( $meta['ftp_timeout'] ) : 90; ?>"
-	data-ftp-port="<?php echo ( isset( $meta['ftp_port'] ) ) ? esc_attr( $meta['ftp_port'] ) : ( 'ftp' === $tpd_type ? 21 : 22 ); ?>"
-	<?php endif; ?> <?php if ( 'onedrive' === $tpd_type ) : ?>
-	data-tpd_drive_id="<?php echo esc_attr( $tpd_drive_id ); ?>"
-	data-tpd_item_id="<?php echo esc_attr( $tpd_item_id ); ?>" <?php endif; ?>>
+		data-ftp-passive-mode="<?php echo ( isset( $meta['ftp_mode'] ) && '1' === $meta['ftp_mode'] ) ? 1 : 0; ?>"
+		data-ftp-timeout="<?php echo ( isset( $meta['ftp_timeout'] ) ) ? esc_attr( $meta['ftp_timeout'] ) : 90; ?>"
+		data-ftp-port="<?php echo esc_attr( ( isset( $meta['ftp_port'] ) ) ? $meta['ftp_port'] : ( 'ftp' === $tpd_type ? 21 : 22 ) ); ?>"
+	<?php endif; ?>
+	<?php if ( 'onedrive' === $tpd_type ) : ?>
+		data-tpd_drive_id="<?php echo esc_attr( $tpd_drive_id ); ?>"
+		data-tpd_item_id="<?php echo esc_attr( $tpd_item_id ); ?>"
+	<?php endif; ?>
+	>
 	<td class="sui-table-item-title sui-hidden-xs sui-hidden-sm row-icon <?php echo esc_attr( $icon_class ); ?>">
 		<div style="display: flex;">
 			<div class="tooltip-container">
@@ -122,9 +127,11 @@ if ( 'gdrive' === $tpd_type && $is_failed_export_gdrive ) {
 				<span class="tpd-name"><?php echo esc_html( $tpd_name ); ?></span>
 			</div>
 			<?php if ( $is_failed_export_gdrive ) : ?>
-				<div class="sui-tooltip sui-tooltip-constrained" data-tooltip="<?php esc_attr_e( 'It seems Google drive is not syncing with Snapshot, to make it work we need to re-authenticate it through Destination page', 'snapshot' ); ?>" aria-hidden="true">
-					<span class="sui-icon-warning-alert color-yellow"></span>
-				</div>
+			<div class="sui-tooltip sui-tooltip-constrained"
+				data-tooltip="<?php esc_attr_e( 'It seems Google Drive is not syncing with Snapshot. To make it work, we need to re-authenticate it from the Destination page.', 'snapshot' ); ?>"
+				aria-hidden="true">
+				<span class="sui-icon-warning-alert color-yellow"></span>
+			</div>
 			<?php endif; ?>
 		</div>
 
@@ -163,17 +170,17 @@ if ( 'gdrive' === $tpd_type && $is_failed_export_gdrive ) {
 	<td class="destination-actions-cell">
 		<div class="destination-actions <?php echo $is_failed_export_gdrive ? 'reconnect-button' : ''; ?>">
 			<?php if ( $is_failed_export_gdrive ) : ?>
-				<a href="<?php echo esc_url( $oauth_link ); ?>" class="sui-button">
-					<?php esc_html_e( 'Reconnect', 'snapshot' ); ?>
-				</a>
+			<a href="<?php echo esc_url( $oauth_link ); ?>" class="sui-button">
+				<?php esc_html_e( 'Reconnect', 'snapshot' ); ?>
+			</a>
 			<?php else : ?>
-				<div class="sui-form-field">
-					<label class="sui-toggle sui-tooltip"
-						data-tooltip="<?php $aws_storage ? esc_attr_e( 'Deactivate destination', 'snapshot' ) : esc_attr_e( 'Activate destination', 'snapshot' ); ?>">
-						<input type="checkbox" class="toggle-active" <?php echo $aws_storage ? 'checked' : ''; ?>>
-						<span class="sui-toggle-slider" aria-hidden="true"></span>
-					</label>
-				</div>
+			<div class="sui-form-field">
+				<label class="sui-toggle sui-tooltip"
+					data-tooltip="<?php $aws_storage ? esc_attr_e( 'Deactivate destination', 'snapshot' ) : esc_attr_e( 'Activate destination', 'snapshot' ); ?>">
+					<input type="checkbox" class="toggle-active" <?php echo $aws_storage ? 'checked' : ''; ?>>
+					<span class="sui-toggle-slider" aria-hidden="true"></span>
+				</label>
+			</div>
 			<?php endif; ?>
 			<div class="sui-dropdown sui-tooltip" data-tooltip="<?php esc_attr_e( 'Settings', 'snapshot' ); ?>">
 				<button class="sui-button-icon sui-dropdown-anchor">
@@ -190,7 +197,8 @@ if ( 'gdrive' === $tpd_type && $is_failed_export_gdrive ) {
 						<a href="<?php echo esc_url( $view_url ); ?>"
 							<?php
 							if ( '#' !== $view_url && '' !== $view_url ) {
-								echo 'target="_blank" rel="noopener noreferrer"'; }
+								echo 'target="_blank" rel="noopener noreferrer"';
+							}
 							?>
 							>
 							<span class="sui-icon-link" aria-hidden="true"></span>

@@ -101,7 +101,7 @@ class Backup extends Controller\Service {
 	 */
 	public function json_finish_backup( $params, $action, $request = false ) {
 		$data            = ( ! is_object( $params ) ) ? json_decode( $params, true ) : (array) $params;
-		$snapshot_status = isset( $data['snapshot_status'] ) ? $data['snapshot_status'] : null;
+		$snapshot_status = isset( $data['snapshot_status'] ) ? $data['snapshot_status'] : '';
 		$service_error   = apply_filters( 'snapshot_custom_service_error', $snapshot_status );
 
 		if ( $service_error && $service_error !== $snapshot_status ) {
@@ -125,15 +125,15 @@ class Backup extends Controller\Service {
 		} else {
 			$time = time();
 			/* translators: %s - Backups status from the API */
-			Log::error( sprintf( __( 'The backup has failed to complete. The API responded with: %s', 'snapshot' ), $backup_status ) );
+			Log::error( sprintf( __( 'The backup has failed to complete. The API responded with: %s', 'snapshot' ), $snapshot_status ) );
 
-			$backup_status = isset( $data['snapshot_status'] ) ? sanitize_text_field( $data['snapshot_status'] ) : false;
+			$snapshot_status = isset( $data['snapshot_status'] ) ? sanitize_text_field( $data['snapshot_status'] ) : '';
 
-			self::save_backup_error( $data['snapshot_id'], $backup_status, $time );
+			self::save_backup_error( $data['snapshot_id'], $snapshot_status, $time );
 
 			Task\Request\Listing::add_backup_type( $data );
 			$this->notify(
-				$backup_status,
+				$snapshot_status,
 				$time,
 				$data
 			);
@@ -221,8 +221,8 @@ class Backup extends Controller\Service {
 	 */
 	protected function maybe_find_any_failed_exports( $data ) {
 		$exports_list = isset( $data['tpd_exp_done'] ) && is_string( $data['tpd_exp_done'] ) && ! empty( $data['tpd_exp_done'] )
-            ? str_replace( "'", '"', $data['tpd_exp_done'] )
-            : $data['tpd_exp_done'] ?? '';
+			? str_replace( "'", '"', $data['tpd_exp_done'] )
+			: $data['tpd_exp_done'] ?? '';
 
 		if ( is_null( $exports_list ) ) {
 			return;

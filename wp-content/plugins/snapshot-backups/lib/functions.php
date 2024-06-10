@@ -218,3 +218,28 @@ if ( ! function_exists( 'parse_size_readable' ) ) {
 		return size_format( $bytes, 2 );
 	}
 }
+
+if ( ! function_exists( 'snapshot_heartbeat_received' ) ) {
+
+	/**
+	 * Filters the heartbeat response to add download link notification.
+	 *
+	 * @param mixed $response Heartbeat response.
+	 * @param mixed $data Heartbeat data.
+	 *
+	 * @return mixed
+	 */
+	function snapshot_heartbeat_received( $response, $data ) {
+		if ( isset( $data['snapshot_check_download_link'] ) && $data['snapshot_check_download_link'] ) {
+
+			$download_link_notification = get_site_transient( 'snapshot_download_link_immediate_notification' );
+			if ( $download_link_notification ) {
+				delete_site_transient( 'snapshot_download_link_immediate_notification' );
+				$response['snapshot_download_link_immediate_notification'] = $download_link_notification ? true : false;
+			}
+		}
+		return $response;
+	}
+
+	add_filter( 'heartbeat_received', 'snapshot_heartbeat_received', 10, 2 );
+}

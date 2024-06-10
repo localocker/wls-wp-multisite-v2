@@ -984,6 +984,7 @@ $db_dump_method     = ( null !== $db_dump_method ) ? $db_dump_method : 'php_code
 	$this->render( 'modals/confirm-wpmudev-password' );
 	$this->render( 'modals/delete-backup' );
 	$this->render( 'modals/file-explorer' );
+	$this->render( 'modals/backup/download' );
 
 	$this->render( 'common/footer' );
 
