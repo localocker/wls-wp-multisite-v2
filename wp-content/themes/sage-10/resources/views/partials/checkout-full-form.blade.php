@@ -6,6 +6,7 @@ $company_phone = get_field('company_phone', 'option');
 $banner_image = get_field('banner_image');
 $checkout_subtitle_text = get_field('checkout_subtitle_text');
 $protection_plan_summary_text = get_field('protection_plan_summary_text');
+$insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','option');
 ?>
 
 <style>
@@ -148,6 +149,19 @@ $protection_plan_summary_text = get_field('protection_plan_summary_text');
                     <label for="Choose A Protection Plan">
                       Choose A Protection Plan
                     </label>
+
+                    {{-- Protection Plan PDF --}}
+                    @if($insurance_policy_pdf_download)
+                      <div class="pb-3 d-flex align-items-center w-full text-size-tiny-14 text-uppercase underline d-none">
+                        <a href="{!! $insurance_policy_pdf_download !!}" title="Download Insurance Policy PDF" target="_blank">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf me-1" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                          </svg>
+                          Download Insurance Policy PDF
+                        </a>
+                      </div>
+                    @endif
+                    {{-- Protection Plan PDF End --}}
 
                     @if($protection_plan_summary_text)
                     <span class="text-size-tiny-14 d-block pb-2">
@@ -501,7 +515,7 @@ $protection_plan_summary_text = get_field('protection_plan_summary_text');
       {{-- ACCORDION 5 - Payment --}}
       <div class="accordion-item blue">
         <h2 class="accordion-header">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive" id="collapseFiveToggle" disabled>
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive" id="collapseFiveToggle">
             <span class="h3">
               Payment
             </span>
