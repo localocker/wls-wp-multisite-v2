@@ -96,9 +96,6 @@ function generateHTML(data) {
               <div>Unit Number: ${
                 moveInData?.unit_name || '[Not informed]'
               }</div>
-              <div>Gate Access Code: ${
-                moveInData?.gate_access_code || '[Not informed]'
-              }</div>
             </div>
           </div>
 
@@ -121,7 +118,7 @@ function generateHTML(data) {
           </div>
         </div>
 
-      </div>
+      </div
     </div>
   `;
 

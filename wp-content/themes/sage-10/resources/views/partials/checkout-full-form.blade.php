@@ -476,7 +476,7 @@ $protection_plan_summary_text_copy = get_field('protection_plan_summary_text_cop
 
 
       {{-- ACCORDION 4 - Create Your Account --}}
-      <div class="accordion-item blue">
+      <div class="accordion-item blue" style="display: none">
         <h2 class="accordion-header">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour" id="collapseFourToggle" disabled>
             <span class="h3">
@@ -932,61 +932,34 @@ $protection_plan_summary_text_copy = get_field('protection_plan_summary_text_cop
 <script type='text/javascript'>
   const BASE_URL_2 = '<?php echo get_site_url(); ?>';
   document.addEventListener("DOMContentLoaded", function() {
-    // Fetch the maximum days in the future from the API
-    fetch(`${BASE_URL_2}/wp-admin/admin-ajax.php?action=days_in_future_api`).then((res) => res.json()).then((data) => {
-      const moveInDateInput = document.getElementById('desired_move_in_date');
-      const maxDaysInFuture = data || 1;
+  // Fetch the maximum days in the future from the API
+  fetch(`${BASE_URL_2}/wp-admin/admin-ajax.php?action=days_in_future_api`).then((res) => res.json()).then((data) => {
+    const moveInDateInput = document.getElementById('desired_move_in_date');
+    const maxDaysInFuture = data || 1;
 
-      // Get today's date and format it
-      const today = new Date();
-      const formattedToday = today.toISOString().split('T')[0];
+    // Get today's date and format it
+    const today = new Date();
+    const formattedToday = today.toISOString().split('T')[0];
 
-      // Calculate the maximum date and format it
-      const maxDate = new Date();
-      maxDate.setDate(today.getDate() + maxDaysInFuture);
-      const formattedMaxDate = maxDate.toISOString().split('T')[0];
+    // Calculate the maximum date and format it
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + maxDaysInFuture);
+    const formattedMaxDate = maxDate.toISOString().split('T')[0];
 
-      // Set the min and max attributes
-      moveInDateInput.min = formattedToday;
-      moveInDateInput.max = formattedMaxDate;
+    // Set the min and max attributes
+    moveInDateInput.min = formattedToday;
+    moveInDateInput.max = formattedMaxDate;
 
-      // Helper function to parse and normalize date to local midnight
-      function parseDateString(dateString) {
-        const dateParts = dateString.split('-');
-        const year = parseInt(dateParts[0], 10);
-        const month = parseInt(dateParts[1], 10) - 1; // Month is zero-based
-        const day = parseInt(dateParts[2], 10);
-        return new Date(year, month, day, 0, 0, 0);
-      }
+    // Add event listener to store selected date in local storage
+    moveInDateInput.addEventListener('change', function() {
+      // Parse the selected date and adjust for timezone offset
+      const selectedDate = new Date(this.value);
+      const localDate = new Date(selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000);
+      localDate.setHours(0, 0, 0, 0); // Normalize to start of the day
 
-      // Add event listener to store selected date in local storage
-      moveInDateInput.addEventListener('change', function () {
-        const selectedDate = parseDateString(this.value);
-        const todayNormalized = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
-
-        const isFutureBooking = selectedDate.getTime() !== todayNormalized.getTime();
-        localStorage.setItem('isFutureBooking', isFutureBooking);
-
-        const esignAccordion = document.querySelector('.accordion-item.e-sign');
-        const paymentAccordion = document.querySelector('.accordion-item.payment');
-
-        if (isFutureBooking) {
-          esignAccordion.style.display = 'none';
-          paymentAccordion.style.setProperty('border-bottom', '1px solid #b5b9be', 'important');
-          paymentAccordion.style.setProperty('border-radius', '0 0 8px 8px', 'important');
-          paymentAccordion.style.setProperty('overflow', 'hidden', 'important');
-        } else {
-          esignAccordion.style.display = 'block';
-          paymentAccordion.style.removeProperty('border-bottom');
-          paymentAccordion.style.removeProperty('border-radius');
-          paymentAccordion.style.removeProperty('overflow');
-        }
-      });
-
-      // Initial check to show or hide the e-sign documents accordion and add border to Payment
-      const initialMoveInDate = moveInDateInput.value;
-      const isFutureBooking = initialMoveInDate !== formattedToday;
+      const isFutureBooking = localDate.getTime() !== today.getTime();
       localStorage.setItem('isFutureBooking', isFutureBooking);
+
       const esignAccordion = document.querySelector('.accordion-item.e-sign');
       const paymentAccordion = document.querySelector('.accordion-item.payment');
 
@@ -1002,7 +975,27 @@ $protection_plan_summary_text_copy = get_field('protection_plan_summary_text_cop
         paymentAccordion.style.removeProperty('overflow');
       }
     });
+
+    // Initial check to show or hide the e-sign documents accordion and add border to Payment
+    const initialMoveInDate = moveInDateInput.value;
+    const isFutureBooking = initialMoveInDate !== formattedToday;
+    localStorage.setItem('isFutureBooking', isFutureBooking);
+    const esignAccordion = document.querySelector('.accordion-item.e-sign');
+    const paymentAccordion = document.querySelector('.accordion-item.payment');
+
+    if (isFutureBooking) {
+      esignAccordion.style.display = 'none';
+      paymentAccordion.style.setProperty('border-bottom', '1px solid #b5b9be', 'important');
+      paymentAccordion.style.setProperty('border-radius', '0 0 8px 8px', 'important');
+      paymentAccordion.style.setProperty('overflow', 'hidden', 'important');
+    } else {
+      esignAccordion.style.display = 'block';
+      paymentAccordion.style.removeProperty('border-bottom');
+      paymentAccordion.style.removeProperty('border-radius');
+      paymentAccordion.style.removeProperty('overflow');
+    }
   });
+});
 </script>
 
 {{-- WLS SCRIPT --}}

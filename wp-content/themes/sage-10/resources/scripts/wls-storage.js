@@ -174,12 +174,18 @@ function WlsScript(document, baseUrl) {
     submitButton.disabled = true;
     submitButton.innerHTML = getTemplate('bookingUnitInProgress');
     submitButton.style.pointerEvents = 'none';
+    const email = document.getElementById('email').value;
+    formData['email'] = email;
 
     if (
       !validateForm(formData, [
         'discount_code',
         'address2',
         's',
+        'user_name',
+        'password',
+        'gate_access_code',
+        'account_email',
         ...formFieldsToRemove,
       ])
     ) {
@@ -189,13 +195,9 @@ function WlsScript(document, baseUrl) {
 
     const isFutureBooking = localStorage.getItem('isFutureBooking') === 'true';
 
-    console.log('isFutureBooking 1', isFutureBooking);
-
     if (isFutureBooking) {
       console.log('Creating lead...');
-      console.log('Form Data:', formData);
       const final = await updateLeadAndMakeReservation(formData, type, true);
-      console.log('Final Reservation Lead:', final);
     } else {
       console.log('Performing booking...');
       await performBooking(formData, type);
@@ -247,7 +249,6 @@ function WlsScript(document, baseUrl) {
         body: JSON.stringify(formData),
       });
       const result = await response.json();
-      console.log('Lead Data:', result);
       if (isReservation) {
         await mapMissingLeadReservationData(formData, result, costs);
         if (!result.id) {
@@ -332,7 +333,16 @@ function WlsScript(document, baseUrl) {
 
   const validateForm = (
     formData,
-    excludedFields = ['address2', 'discount_code', '', 's']
+    excludedFields = [
+      'address2',
+      'discount_code',
+      '',
+      's',
+      'user_name',
+      'password',
+      'gate_access_code',
+      'account_email',
+    ]
   ) => {
     for (const key in formData) {
       if (
@@ -387,7 +397,6 @@ function WlsScript(document, baseUrl) {
       // Display response details for future bookings
       const responseComponent = document.getElementById('responseComponent');
       if (responseComponent) {
-        console.log('html data', data);
         responseComponent.innerHTML = generateHTML(data);
       } else {
         console.warn('Response component not found.');
@@ -413,7 +422,6 @@ function WlsScript(document, baseUrl) {
             const responseComponent =
               document.getElementById('responseComponent');
             if (responseComponent) {
-              console.log('html data', data);
               responseComponent.innerHTML = generateHTML(data);
             } else {
               console.warn('Response component not found.');
@@ -428,6 +436,10 @@ function WlsScript(document, baseUrl) {
       } else {
         // Handle case where move-in unit event or e-sign URL is missing
         console.warn('Move-in unit event data or e-sign URL is missing.');
+        handleError(
+          'Something went wrong booking your unit, please check your information and try again',
+          type
+        );
       }
     }
 
@@ -570,7 +582,6 @@ function WlsScript(document, baseUrl) {
 
     // Add event listener for input change
     optionDiv.querySelector(`#private`).addEventListener('input', function () {
-      console.log('private insurance selected');
       const selectedInsuranceAmount = {
         id: 'private',
         amount: 0,
@@ -594,11 +605,9 @@ function WlsScript(document, baseUrl) {
       var email = document.getElementById('email').value;
       var phone = document.getElementById('phone').value;
       const formData = getFormData();
-      console.log('form data', formData);
 
       // Remove existing error messages
       clearErrorMessages();
-      console.log('email 1', email);
       // Perform validation
       let hasError = false;
       if (firstName.trim() === '') {
@@ -632,7 +641,6 @@ function WlsScript(document, baseUrl) {
 
       const collapseTwo = document.getElementById('collapseTwoToggle');
       collapseTwo.removeAttribute('disabled');
-      console.log('form data');
 
       // Make API request in the background
       fetch(`${BASE_URL}/wp-admin/admin-ajax.php?action=crm_api`, {
@@ -655,7 +663,6 @@ function WlsScript(document, baseUrl) {
         .split('T')[0];
 
       try {
-        console.log('email', email);
         const response = await fetch(
           `${BASE_URL}/wp-admin/admin-ajax.php?action=lead_api`,
           {
@@ -679,7 +686,7 @@ function WlsScript(document, baseUrl) {
         );
 
         const data = await response.json();
-        console.log('Lead Data 1:', data);
+
         localStorage.setItem('lead_id', JSON.stringify(data.id));
         localStorage.setItem('tenant_id', JSON.stringify(data.tenant_id));
       } catch (error) {
@@ -703,8 +710,6 @@ function WlsScript(document, baseUrl) {
   const updateLeadWithoutReservation = async () => {
     const leadId = JSON.parse(localStorage.getItem('lead_id'));
     const tenantId = JSON.parse(localStorage.getItem('tenant_id'));
-    console.log('leadId', leadId);
-    console.log('tenantId', tenantId);
     const formData = getFormData();
     const moveInDate = formatMoveInDate(
       JSON.parse(localStorage.getItem('desired_move_in_date'))
@@ -718,7 +723,6 @@ function WlsScript(document, baseUrl) {
       formData['insurance_amount'] = `$${insurance?.amount ?? 0}/month`;
       formData['insurance_id'] = insurance?.id ?? 'private';
     }
-    console.log('formData', formData);
 
     var email = document.getElementById('email').value;
 
@@ -744,8 +748,6 @@ function WlsScript(document, baseUrl) {
       branch_of_service: formData?.branch_of_service ?? null,
     };
 
-    console.log('Body:', body);
-
     try {
       const response = await fetch(
         `${BASE_URL}/wp-admin/admin-ajax.php?action=lead_api&lead_id=${leadId}`,
@@ -757,7 +759,6 @@ function WlsScript(document, baseUrl) {
       );
       const result = await response.json();
 
-      console.log('Lead Data 2: ', result);
       return result;
     } catch (error) {
       console.error('Lead Error:', error);
@@ -783,7 +784,6 @@ function WlsScript(document, baseUrl) {
 
   function validateEmail(email) {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    console.log('email', email);
     return emailPattern.test(email);
   }
 
@@ -836,53 +836,53 @@ function WlsScript(document, baseUrl) {
     manageFormSteps(
       'formStep3',
       {
-        nextStep: '#collapseFour',
+        nextStep: '#collapseFive',
         previousStep: '#collapseThree',
-        collapseIdentifier: 'collapseFourToggle',
+        collapseIdentifier: 'collapseFiveToggle',
       },
       true
     )
   );
 
-  // Function to handle the step 4 button click
-  clickElementById('step4', function () {
-    let formElem = document.getElementById('formStep4');
-    let inputs = formElem.querySelectorAll('input,select');
-    let isValid = true;
-    let passMessage = null;
+  // // Function to handle the step 4 button click
+  // clickElementById('step4', function () {
+  //   let formElem = document.getElementById('formStep4');
+  //   let inputs = formElem.querySelectorAll('input,select');
+  //   let isValid = true;
+  //   let passMessage = null;
 
-    // Loop through each input field
-    inputs.forEach(function (input) {
-      console.log(input.id, 'value->', input.value);
-      if (input.id === 'password' && input.value.length < 8) {
-        passMessage = 'Password must be at least 8 characters long.';
-        isValid = false;
-      }
-      // Check if the input is empty
-      if (!input.value.trim()) {
-        // If empty, add an error class to the input field
-        if (input.id !== 'password') {
-          input.classList.add('is-invalid');
-        }
-        isValid = false;
-      } else {
-        // If not empty, remove any existing error class
-        input.classList.remove('error');
-      }
-    });
+  //   // Loop through each input field
+  //   inputs.forEach(function (input) {
+  //     console.log(input.id, 'value->', input.value);
+  //     if (input.id === 'password' && input.value.length < 8) {
+  //       passMessage = 'Password must be at least 8 characters long.';
+  //       isValid = false;
+  //     }
+  //     // Check if the input is empty
+  //     if (!input.value.trim()) {
+  //       // If empty, add an error class to the input field
+  //       if (input.id !== 'password') {
+  //         input.classList.add('is-invalid');
+  //       }
+  //       isValid = false;
+  //     } else {
+  //       // If not empty, remove any existing error class
+  //       input.classList.remove('error');
+  //     }
+  //   });
 
-    if (!isValid) {
-      showToast(
-        passMessage ? passMessage : 'Please fill in all fields.',
-        '#e62222'
-      );
+  //   if (!isValid) {
+  //     showToast(
+  //       passMessage ? passMessage : 'Please fill in all fields.',
+  //       '#e62222'
+  //     );
 
-      return;
-    }
+  //     return;
+  //   }
 
-    // Open the next accordion
-    changingSteps('#collapseFive', '#collapseFour', 'collapseFiveToggle');
-  });
+  //   // Open the next accordion
+  //   changingSteps('#collapseFive', '#collapseFour', 'collapseFiveToggle');
+  // });
 
   const calculateProratedAmount = (amount, moveInDate) => {
     const moveIn = new Date(moveInDate);
@@ -908,10 +908,6 @@ function WlsScript(document, baseUrl) {
     );
     const isFutureBooking = localStorage.getItem('isFutureBooking');
 
-    console.log(
-      'isFutureBooking Storage',
-      localStorage.getItem('isFutureBooking')
-    );
     const unitFromLocalStorage = JSON.parse(localStorage.getItem('unit'));
 
     if (discount && discount.discount_plan) {
@@ -957,10 +953,8 @@ function WlsScript(document, baseUrl) {
       });
 
       const data = await response.json();
-      console.log('Review Cost Data:', data);
       const eventData = data.move_in_unit_event;
       let leadData = null;
-      console.log('isFutureBooking', isFutureBooking);
       if (isFutureBooking) {
         const leadData = await updateLeadWithoutReservation();
         const reservationFee = leadData?.unit_group?.reservation_fee;

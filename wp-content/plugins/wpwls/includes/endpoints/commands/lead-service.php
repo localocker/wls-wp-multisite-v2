@@ -44,7 +44,7 @@ function createJsonNewLead($formData, $existingNotes = null)
         ));
     }
 
-    $noteText = 'Insurance amount -' . $formData['insurance_amount'] . ' | Insurance ID - ' . $formData['insurance_id'] . ' | Gate Access Code - ' . $formData['gate_access_code'];
+    $noteText = 'Insurance amount -' . $formData['insurance_amount'] . ' | Insurance ID - ' . $formData['insurance_id'];
     $notes_attributes = array();
     $notes_attributes[] = array('note' => $noteText);
 
