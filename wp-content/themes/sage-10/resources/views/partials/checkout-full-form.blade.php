@@ -5,10 +5,9 @@ $company_phone = get_field('company_phone', 'option');
 
 $banner_image = get_field('banner_image');
 $checkout_subtitle_text = get_field('checkout_subtitle_text');
-$protection_plan_summary_text = get_field('protection_plan_summary_text');
 $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','option');
+$protection_plan_summary_text_copy = get_field('protection_plan_summary_text_copy','option');
 ?>
-
 <style>
   svg[data-lastpass-icon=true] {
     visibility: none;
@@ -29,7 +28,22 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
   input[type=number] {
     -moz-appearance: textfield;
   }
+
+
+  .tooltip-inner {
+    max-width: 400px;
+    width: 400px;
+    white-space: normal;
+}
+
+.payment-border-bottom {
+  border-bottom: 4px solid black; /* Adjust the color as needed */
+}
+
 </style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 
 <div class="container padding-top-bottom-80">
   <div class="row">
@@ -143,33 +157,34 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
                 <input name="unit_id" id="unit_id" type="hidden" class="" aria-invalid="false" />
 
                 {{-- Protection Plan --}}
+
+                @if($protection_plan_summary_text_copy)
+                    <span class="text-size-tiny-14 d-block pb-2">
+                      @if($protection_plan_summary_text_copy)
+                      {!! $protection_plan_summary_text_copy !!}
+                      @endif
+                    </span>
+                    @endif
+
+                    {{-- Protection Plan PDF --}}
+                    @if($insurance_policy_pdf_download)
+                      <div class="pb-3 d-flex align-items-center w-full text-size-tiny-14 underline">
+                        <a href="{!! $insurance_policy_pdf_download !!}" title="Download Insurance Policy PDF" target="_blank">
+                          <!-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf me-1" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
+                          </svg> -->
+                          View Coverage Details
+                        </a>
+                      </div>
+                    @endif
+                   {{-- Protection Plan PDF End --}}
+
                 <fieldset class="col-12 col-sm-6 mb-4">
                   <legend class="col-form-label col-12 pt-0" style="padding-bottom: 0.125em;">
 
                     <label for="Choose A Protection Plan">
                       Choose A Protection Plan
                     </label>
-
-                    {{-- Protection Plan PDF --}}
-                    @if($insurance_policy_pdf_download)
-                      <div class="pb-3 d-flex align-items-center w-full text-size-tiny-14 text-uppercase underline d-none">
-                        <a href="{!! $insurance_policy_pdf_download !!}" title="Download Insurance Policy PDF" target="_blank">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-filetype-pdf me-1" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM1.6 11.85H0v3.999h.791v-1.342h.803q.43 0 .732-.173.305-.175.463-.474a1.4 1.4 0 0 0 .161-.677q0-.375-.158-.677a1.2 1.2 0 0 0-.46-.477q-.3-.18-.732-.179m.545 1.333a.8.8 0 0 1-.085.38.57.57 0 0 1-.238.241.8.8 0 0 1-.375.082H.788V12.48h.66q.327 0 .512.181.185.183.185.522m1.217-1.333v3.999h1.46q.602 0 .998-.237a1.45 1.45 0 0 0 .595-.689q.196-.45.196-1.084 0-.63-.196-1.075a1.43 1.43 0 0 0-.589-.68q-.396-.234-1.005-.234zm.791.645h.563q.371 0 .609.152a.9.9 0 0 1 .354.454q.118.302.118.753a2.3 2.3 0 0 1-.068.592 1.1 1.1 0 0 1-.196.422.8.8 0 0 1-.334.252 1.3 1.3 0 0 1-.483.082h-.563zm3.743 1.763v1.591h-.79V11.85h2.548v.653H7.896v1.117h1.606v.638z"/>
-                          </svg>
-                          Download Insurance Policy PDF
-                        </a>
-                      </div>
-                    @endif
-                    {{-- Protection Plan PDF End --}}
-
-                    @if($protection_plan_summary_text)
-                    <span class="text-size-tiny-14 d-block pb-2">
-                      @if($protection_plan_summary_text)
-                      {!! $protection_plan_summary_text !!}
-                      @endif
-                    </span>
-                    @endif
 
                   </legend>
 
@@ -182,13 +197,29 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
 
                 {{-- Expected Move-in Date --}}
                 <div class="col-12 col-sm-6 mb-4">
-                  <label for="Expected Move In Date">
+                  <!-- <label for="Expected Move In Date">
                     Expected Move In Date
+                  </label> -->
+
+                <label for="Expected Move In Date">
+                    Move In Date
                   </label>
 
-                  <div class="mb-4 pb-1">
-                    <input id="desired_move_in_date"  placeholder="yyyy-mm-dd" name="desired_move_in_date" class="form-control" style="max-width: 250px;" autocomplete="off" min="" value="" placeholder="yyyy-dd-mm" />
-                  </div>
+                  @php
+  $todayDate = date('Y-m-d'); // Format date to 'Y-m-d' for HTML5 date input
+@endphp
+
+                <div class="mb-4 pb-1">
+                  <input id="desired_move_in_date"
+                    type="date"
+                    name="desired_move_in_date"
+                    class="form-control"
+                    style="max-width: 250px;"
+                    autocomplete="off"
+                    value="{{ $todayDate }}"
+                   />
+                  <!-- <input type="hidden" name="desired_move_in_date" value="{{ $todayDate }}" /> -->
+                </div>
 
                   <label for="Move In Date">
                     How long do you plan to store?
@@ -345,7 +376,7 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
 
                 <div class="col-12 col-md-6 col-xxl-3 mb-4">
                   <label for="License Expiration">Expiration Date</label>
-                  <input id="drivers_license_expiration" name="drivers_license_expiration" placeholder="yyyy-mm-dd" class="form-control max-width-250" data-lpignore="true" autocomplete="off" />
+                  <input type="date" id="drivers_license_expiration" name="drivers_license_expiration" placeholder="mm/dd/yy" class="form-control max-width-250" data-lpignore="true" autocomplete="off" />
                 </div>
 
                 <div class="col-12 col-md-6 mb-4">
@@ -513,7 +544,7 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
 
 
       {{-- ACCORDION 5 - Payment --}}
-      <div class="accordion-item blue">
+      <div class="accordion-item blue payment">
         <h2 class="accordion-header">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive" id="collapseFiveToggle">
             <span class="h3">
@@ -555,7 +586,6 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
                 </div>
                 {{-- Total and Promo Code End --}}
 
-
                 {{-- Payment --}}
                 <div class="col-12 mb-4">
                   <h5 class="lined-header">
@@ -571,9 +601,8 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
                         <div class="d-flex align-items-center gap-2">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-credit-card-2-front" viewBox="0 0 16 16">
                             <path d="M14 3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
-                            <path d="M2 5.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5" />
+                            <path d="M2 5.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5zm0 3a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5m3 0a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1h-1a.5.5 0 0 1-.5-.5" />
                           </svg>
-
                           CREDIT CARD
                         </div>
                       </button>
@@ -630,12 +659,8 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
                                 <input type="text" class="form-control" id="security_code" name="security_code" aria-describedby="Security Code" placeholder="ex. 918" />
                               </div>
 
-                              <div class="col-12 mb-2">
-                                <input class="me-1" type="checkbox" value="save_payment_info" name="save_payment_info" class="me-1"> Save payment information?
-                              </div>
-
                               <div class="col-12 mb-4">
-                                <input class="me-1" type="checkbox" value="add_autopay" name="add_autopay" class="me-1"> Add Autopay? (Autopay date is set to due date)
+                                <p class="text-size-tiny-14"> * By submitting this payment you are agreeing to enroll in auto-pay <p>
                               </div>
 
                               <div class="col-12 pb-1">
@@ -680,7 +705,6 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
                                 <select class="form-control" id="ach_account_type" name="ach_account_type">
                                   <option value="none" selected disabled>Choose Your Type</option>
                                   </option>
-                                  <!-- CorpChecking (specifiable as 'Business Checking'), CorpSavings (specifiable as 'Business Savings'), Checking (specifiable as 'Checking'), Savings (specifiable as 'Savings')", -->
                                   <option value="CorpChecking">Business Checking</option>
                                   <option value="CorpSavings">Business Savings</option>
                                   <option value="Checking">Checking</option>
@@ -793,20 +817,12 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
                                     </select>
                                   </div>
 
-
                                 </div>
-
-                              </div>
-
-
-                              <div class="col-12 mb-2">
-                                <input class="me-1" type="checkbox" value="save_payment_info" name="save_payment_info" class="me-1"> Save payment information?
                               </div>
 
                               <div class="col-12 mb-4">
-                                <input class="me-1" type="checkbox" value="add_autopay" name="add_autopay" class="me-1"> Add Autopay? (Autopay date is set to due date)
+                                <p class="text-size-tiny-14"> * By submitting this payment you are agreeing to enroll in auto-pay <p>
                               </div>
-
 
                               <div class="col-12 pb-1">
                                 <button type="button" class="button border-radius-4px" id="submitButtonACH">
@@ -836,9 +852,7 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
                   </div>
                 </div>
                 {{-- TABBED END --}}
-
                 {{-- Payment end --}}
-
               </div>
             </form>
 
@@ -846,7 +860,6 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
         </div>
       </div>
       {{-- END ACCORDION 5 - Payment --}}
-
 
       {{-- ACCORDION6 - 6 E-sign --}}
       <div class="accordion-item e-sign">
@@ -914,20 +927,81 @@ $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','opti
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 
+{{-- WLS SCRIPT --}}
+
 <script type='text/javascript'>
-  const BASE_URL = '<?php echo get_site_url(); ?>';
-  $(document).ready(function(){
-      $("#drivers_license_expiration").datepicker({
-          dateFormat: "yy-mm-dd",
-          minDate: 0,
+  const BASE_URL_2 = '<?php echo get_site_url(); ?>';
+  document.addEventListener("DOMContentLoaded", function() {
+    // Fetch the maximum days in the future from the API
+    fetch(`${BASE_URL_2}/wp-admin/admin-ajax.php?action=days_in_future_api`).then((res) => res.json()).then((data) => {
+      const moveInDateInput = document.getElementById('desired_move_in_date');
+      const maxDaysInFuture = data || 1;
+
+      // Get today's date and format it
+      const today = new Date();
+      const formattedToday = today.toISOString().split('T')[0];
+
+      // Calculate the maximum date and format it
+      const maxDate = new Date();
+      maxDate.setDate(today.getDate() + maxDaysInFuture);
+      const formattedMaxDate = maxDate.toISOString().split('T')[0];
+
+      // Set the min and max attributes
+      moveInDateInput.min = formattedToday;
+      moveInDateInput.max = formattedMaxDate;
+
+      // Helper function to parse and normalize date to local midnight
+      function parseDateString(dateString) {
+        const dateParts = dateString.split('-');
+        const year = parseInt(dateParts[0], 10);
+        const month = parseInt(dateParts[1], 10) - 1; // Month is zero-based
+        const day = parseInt(dateParts[2], 10);
+        return new Date(year, month, day, 0, 0, 0);
+      }
+
+      // Add event listener to store selected date in local storage
+      moveInDateInput.addEventListener('change', function () {
+        const selectedDate = parseDateString(this.value);
+        const todayNormalized = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+
+        const isFutureBooking = selectedDate.getTime() !== todayNormalized.getTime();
+        localStorage.setItem('isFutureBooking', isFutureBooking);
+
+        const esignAccordion = document.querySelector('.accordion-item.e-sign');
+        const paymentAccordion = document.querySelector('.accordion-item.payment');
+
+        if (isFutureBooking) {
+          esignAccordion.style.display = 'none';
+          paymentAccordion.style.setProperty('border-bottom', '1px solid #b5b9be', 'important');
+          paymentAccordion.style.setProperty('border-radius', '0 0 8px 8px', 'important');
+          paymentAccordion.style.setProperty('overflow', 'hidden', 'important');
+        } else {
+          esignAccordion.style.display = 'block';
+          paymentAccordion.style.removeProperty('border-bottom');
+          paymentAccordion.style.removeProperty('border-radius');
+          paymentAccordion.style.removeProperty('overflow');
+        }
       });
-  fetch(`${BASE_URL}/wp-admin/admin-ajax.php?action=days_in_future_api`).then((res)=> res.json()).then((data)=> {
-    $("#desired_move_in_date").datepicker({
-          dateFormat: "yy-mm-dd",
-          minDate: 0,
-          maxDate: data || 1,
-      });
-  })
+
+      // Initial check to show or hide the e-sign documents accordion and add border to Payment
+      const initialMoveInDate = moveInDateInput.value;
+      const isFutureBooking = initialMoveInDate !== formattedToday;
+      localStorage.setItem('isFutureBooking', isFutureBooking);
+      const esignAccordion = document.querySelector('.accordion-item.e-sign');
+      const paymentAccordion = document.querySelector('.accordion-item.payment');
+
+      if (isFutureBooking) {
+        esignAccordion.style.display = 'none';
+        paymentAccordion.style.setProperty('border-bottom', '1px solid #b5b9be', 'important');
+        paymentAccordion.style.setProperty('border-radius', '0 0 8px 8px', 'important');
+        paymentAccordion.style.setProperty('overflow', 'hidden', 'important');
+      } else {
+        esignAccordion.style.display = 'block';
+        paymentAccordion.style.removeProperty('border-bottom');
+        paymentAccordion.style.removeProperty('border-radius');
+        paymentAccordion.style.removeProperty('overflow');
+      }
+    });
   });
 </script>
 
