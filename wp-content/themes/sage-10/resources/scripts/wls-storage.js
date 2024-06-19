@@ -18,6 +18,7 @@ function WlsScript(document, baseUrl) {
       passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
     passwordInput.setAttribute('type', type);
   });
+
   const BASE_URL = baseUrl;
   localStorage.clear();
 
@@ -182,9 +183,6 @@ function WlsScript(document, baseUrl) {
         'discount_code',
         'address2',
         's',
-        'user_name',
-        'password',
-        'gate_access_code',
         'account_email',
         ...formFieldsToRemove,
       ])
@@ -333,16 +331,7 @@ function WlsScript(document, baseUrl) {
 
   const validateForm = (
     formData,
-    excludedFields = [
-      'address2',
-      'discount_code',
-      '',
-      's',
-      'user_name',
-      'password',
-      'gate_access_code',
-      'account_email',
-    ]
+    excludedFields = ['address2', 'discount_code', '', 's']
   ) => {
     for (const key in formData) {
       if (
@@ -436,6 +425,7 @@ function WlsScript(document, baseUrl) {
       } else {
         // Handle case where move-in unit event or e-sign URL is missing
         console.warn('Move-in unit event data or e-sign URL is missing.');
+        console.log('Data:', data);
         handleError(
           'Something went wrong booking your unit, please check your information and try again',
           type
@@ -836,53 +826,53 @@ function WlsScript(document, baseUrl) {
     manageFormSteps(
       'formStep3',
       {
-        nextStep: '#collapseFive',
+        nextStep: '#collapseFour',
         previousStep: '#collapseThree',
-        collapseIdentifier: 'collapseFiveToggle',
+        collapseIdentifier: 'collapseFourToggle',
       },
       true
     )
   );
 
-  // // Function to handle the step 4 button click
-  // clickElementById('step4', function () {
-  //   let formElem = document.getElementById('formStep4');
-  //   let inputs = formElem.querySelectorAll('input,select');
-  //   let isValid = true;
-  //   let passMessage = null;
+  // Function to handle the step 4 button click
+  clickElementById('step4', function () {
+    let formElem = document.getElementById('formStep4');
+    let inputs = formElem.querySelectorAll('input,select');
+    let isValid = true;
+    let passMessage = null;
 
-  //   // Loop through each input field
-  //   inputs.forEach(function (input) {
-  //     console.log(input.id, 'value->', input.value);
-  //     if (input.id === 'password' && input.value.length < 8) {
-  //       passMessage = 'Password must be at least 8 characters long.';
-  //       isValid = false;
-  //     }
-  //     // Check if the input is empty
-  //     if (!input.value.trim()) {
-  //       // If empty, add an error class to the input field
-  //       if (input.id !== 'password') {
-  //         input.classList.add('is-invalid');
-  //       }
-  //       isValid = false;
-  //     } else {
-  //       // If not empty, remove any existing error class
-  //       input.classList.remove('error');
-  //     }
-  //   });
+    // Loop through each input field
+    inputs.forEach(function (input) {
+      console.log(input.id, 'value->', input.value);
+      if (input.id === 'password' && input.value.length < 8) {
+        passMessage = 'Password must be at least 8 characters long.';
+        isValid = false;
+      }
+      // Check if the input is empty
+      if (!input.value.trim()) {
+        // If empty, add an error class to the input field
+        if (input.id !== 'password') {
+          input.classList.add('is-invalid');
+        }
+        isValid = false;
+      } else {
+        // If not empty, remove any existing error class
+        input.classList.remove('error');
+      }
+    });
 
-  //   if (!isValid) {
-  //     showToast(
-  //       passMessage ? passMessage : 'Please fill in all fields.',
-  //       '#e62222'
-  //     );
+    if (!isValid) {
+      showToast(
+        passMessage ? passMessage : 'Please fill in all fields.',
+        '#e62222'
+      );
 
-  //     return;
-  //   }
+      return;
+    }
 
-  //   // Open the next accordion
-  //   changingSteps('#collapseFive', '#collapseFour', 'collapseFiveToggle');
-  // });
+    // Open the next accordion
+    changingSteps('#collapseFive', '#collapseFour', 'collapseFiveToggle');
+  });
 
   const calculateProratedAmount = (amount, moveInDate) => {
     const moveIn = new Date(moveInDate);

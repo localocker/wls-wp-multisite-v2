@@ -476,7 +476,7 @@ $protection_plan_summary_text_copy = get_field('protection_plan_summary_text_cop
 
 
       {{-- ACCORDION 4 - Create Your Account --}}
-      <div class="accordion-item blue" style="display: none">
+      <div class="accordion-item blue">
         <h2 class="accordion-header">
           <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour" id="collapseFourToggle" disabled>
             <span class="h3">
