@@ -845,7 +845,6 @@ function WlsScript(document, baseUrl) {
 
     // Loop through each input field
     inputs.forEach(function (input) {
-      console.log(input.id, 'value->', input.value);
       if (input.id === 'password' && input.value.length < 8) {
         passMessage = 'Password must be at least 8 characters long.';
         isValid = false;
@@ -956,7 +955,6 @@ function WlsScript(document, baseUrl) {
       });
 
       const data = await response.json();
-      console.log('Review Cost Data:', data);
       const eventData = data.move_in_unit_event;
       let leadData = null;
       if (isFutureBooking) {
@@ -1151,7 +1149,9 @@ function WlsScript(document, baseUrl) {
       itemPrice.textContent = `$${
         isFutureBooking
           ? item.subtotal?.toFixed(2)
-          : item.single_item_price?.toFixed(2)
+          : !hasDiscount
+          ? item.single_item_price?.toFixed(2)
+          : item.subtotal?.toFixed(2)
       }`;
       itemRow.appendChild(itemPrice);
     });
@@ -1177,7 +1177,7 @@ function WlsScript(document, baseUrl) {
       discountDesc.textContent = `Discount - ${discount.discount_plan.description}`;
       discountRow.appendChild(discountDesc);
       const discountPrice = document.createElement('div');
-      discountPrice.textContent = `$${discountAmount?.toFixed(2)}`;
+      discountPrice.textContent = `-$${discountAmount?.toFixed(2)}`;
       discountRow.appendChild(discountPrice);
     }
 
@@ -1192,13 +1192,14 @@ function WlsScript(document, baseUrl) {
     // Fill total and subtotal
     const subtotal = !isFutureBooking
       ? data.move_in_subtotal
-      : getProratedSubtotal(data.invoice_line_items);
+      : getProratedSubtotal(data.invoice_line_items) - (discountAmount ?? 0);
     const tax = data.move_in_taxes_total;
     const total = !isFutureBooking
       ? data.move_in_total
       : (
           getProratedSubtotal(data.invoice_line_items) +
-          data?.move_in_taxes_total
+          data?.move_in_taxes_total -
+          (discountAmount ?? 0)
         ).toFixed(2);
 
     const subTotalRow = document.createElement('div');
@@ -1274,6 +1275,7 @@ function WlsScript(document, baseUrl) {
   }
 
   function fillUpdatedPrice(data) {
+    let discountAmount = 0;
     const discount = JSON.parse(localStorage.getItem('discount'));
     const updatedPriceContainer = document.getElementById('updated_price');
     const isFutureBooking = localStorage.getItem('isFutureBooking') === 'true';
@@ -1305,6 +1307,10 @@ function WlsScript(document, baseUrl) {
       );
       updatedPriceContainer.appendChild(itemRow);
 
+      if (isRentItem && item.discount_amount > 0) {
+        discountAmount = item.discount_amount;
+      }
+
       const itemDesc = document.createElement('div');
       itemDesc.classList.add('me-auto');
       itemDesc.textContent = `${isRentItem ? "First Month's " : ''} ${
@@ -1319,7 +1325,9 @@ function WlsScript(document, baseUrl) {
       const itemPrice = document.createElement('div');
       itemPrice.textContent = `$${
         isFutureBooking
-          ? item.subtotal?.toFixed(2)
+          ? !isRentItem
+            ? item.subtotal?.toFixed(2)
+            : (item.subtotal - discountAmount).toFixed(2)
           : item.single_item_price?.toFixed(2)
       }`;
       itemRow.appendChild(itemPrice);
@@ -1327,13 +1335,14 @@ function WlsScript(document, baseUrl) {
 
     const subTotal = !isFutureBooking
       ? data.move_in_subtotal
-      : getProratedSubtotal(data.invoice_line_items);
+      : getProratedSubtotal(data.invoice_line_items) - discountAmount;
 
     const total = !isFutureBooking
       ? data.move_in_total
       : (
           getProratedSubtotal(data.invoice_line_items) +
-          data?.move_in_taxes_total
+          data?.move_in_taxes_total -
+          discountAmount
         ).toFixed(2);
     // Fill sub-total
     const subTotalRow = document.createElement('div');
