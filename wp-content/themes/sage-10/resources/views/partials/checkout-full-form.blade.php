@@ -957,9 +957,6 @@ $protection_plan_summary_text_copy = get_field('protection_plan_summary_text_cop
       const localDate = new Date(selectedDate.getTime() + selectedDate.getTimezoneOffset() * 60000);
       localDate.setHours(0, 0, 0, 0); // Normalize to start of the day
 
-      const isFutureBooking = localDate.getTime() !== today.getTime();
-      localStorage.setItem('isFutureBooking', isFutureBooking);
-
       const esignAccordion = document.querySelector('.accordion-item.e-sign');
       const paymentAccordion = document.querySelector('.accordion-item.payment');
 

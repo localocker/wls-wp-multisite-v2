@@ -114,8 +114,10 @@ function WlsScript(document, baseUrl) {
 
       if (inputDateString === todayString) {
         futureBookingWarning.style.display = 'none';
+        localStorage.setItem('isFutureBooking', false);
       } else {
         futureBookingWarning.style.display = 'block';
+        localStorage.setItem('isFutureBooking', true);
       }
 
       localStorage.setItem(
@@ -881,8 +883,14 @@ function WlsScript(document, baseUrl) {
       moveIn.getMonth() + 1,
       0
     ).getDate();
-    const daysLeftInMonth = daysInMonth - moveIn.getDate() + 1;
+    const daysLeftInMonth = daysInMonth - moveIn.getDate();
     return (amount / daysInMonth) * daysLeftInMonth;
+  };
+
+  const getProratedSubtotal = (lineItems) => {
+    return lineItems.reduce((acc, item) => {
+      return acc + item.subtotal;
+    }, 0);
   };
 
   const PostReviewCost = async (isReservation) => {
@@ -908,14 +916,19 @@ function WlsScript(document, baseUrl) {
       ];
     }
 
-    const proratedRent = move_in_date
-      ? calculateProratedAmount(unitFromLocalStorage.price, move_in_date)
-      : unitFromLocalStorage.price;
-    const proratedInsurance = move_in_date
-      ? calculateProratedAmount(insurance ? insurance.amount : 0, move_in_date)
-      : insurance
-      ? insurance.amount
-      : 0;
+    const proratedRent =
+      move_in_date && isFutureBooking
+        ? calculateProratedAmount(unitFromLocalStorage.price, move_in_date)
+        : unitFromLocalStorage.price;
+    const proratedInsurance =
+      move_in_date && isFutureBooking
+        ? calculateProratedAmount(
+            insurance ? insurance.amount : 0,
+            move_in_date
+          )
+        : insurance
+        ? insurance.amount
+        : 0;
 
     if (formData.military_options === 'not') {
       formData.is_military = false;
@@ -943,6 +956,7 @@ function WlsScript(document, baseUrl) {
       });
 
       const data = await response.json();
+      console.log('Review Cost Data:', data);
       const eventData = data.move_in_unit_event;
       let leadData = null;
       if (isFutureBooking) {
@@ -960,10 +974,24 @@ function WlsScript(document, baseUrl) {
 
       eventData.invoice_line_items.map((item) => {
         if (item.full_description.includes('Rent')) {
-          item.subtotal = Number(proratedRent);
+          item.subtotal = isFutureBooking
+            ? Number(proratedRent)
+            : item.subtotal;
+          item.total = isFutureBooking
+            ? Number(proratedInsurance)
+            : item.total !== 0
+            ? item.total
+            : item.single_item_price;
           item.prorated = true;
         } else if (item.full_description.includes('Insurance')) {
-          item.subtotal = Number(proratedInsurance);
+          item.subtotal = isFutureBooking
+            ? Number(proratedInsurance)
+            : item.subtotal;
+          item.total = isFutureBooking
+            ? Number(proratedInsurance)
+            : item.total !== 0
+            ? item.total
+            : item.single_item_price;
           item.prorated = true;
         }
         return item;
@@ -1067,6 +1095,13 @@ function WlsScript(document, baseUrl) {
       unitContainer.appendChild(promo);
     }
 
+    // Remove Reservation Fee if booking is not future
+    if (!isFutureBooking) {
+      data.invoice_line_items = data.invoice_line_items.filter(
+        (item) => !item.full_description.includes('Reservation Fee')
+      );
+    }
+
     data.invoice_line_items.forEach((item) => {
       const isRentItem = item.full_description.includes('Rent');
       const isInsuranceItem =
@@ -1113,7 +1148,11 @@ function WlsScript(document, baseUrl) {
       itemRow.appendChild(itemDesc);
 
       const itemPrice = document.createElement('div');
-      itemPrice.textContent = `$${item.subtotal?.toFixed(2)}`;
+      itemPrice.textContent = `$${
+        isFutureBooking
+          ? item.subtotal?.toFixed(2)
+          : item.single_item_price?.toFixed(2)
+      }`;
       itemRow.appendChild(itemPrice);
     });
 
@@ -1151,9 +1190,16 @@ function WlsScript(document, baseUrl) {
     }
 
     // Fill total and subtotal
-    const subtotal = data.move_in_subtotal;
+    const subtotal = !isFutureBooking
+      ? data.move_in_subtotal
+      : getProratedSubtotal(data.invoice_line_items);
     const tax = data.move_in_taxes_total;
-    const total = data.move_in_total;
+    const total = !isFutureBooking
+      ? data.move_in_total
+      : (
+          getProratedSubtotal(data.invoice_line_items) +
+          data?.move_in_taxes_total
+        ).toFixed(2);
 
     const subTotalRow = document.createElement('div');
     subTotalRow.classList.add(
@@ -1223,11 +1269,7 @@ function WlsScript(document, baseUrl) {
       'font-weight-700',
       'text-color-red'
     );
-    totalPrice.textContent = `$${
-      reservationFee
-        ? (total + reservationFee.total)?.toFixed(2)
-        : total?.toFixed(2)
-    }`;
+    totalPrice.textContent = `$${total}`;
     totalRow.appendChild(totalPrice);
   }
 
@@ -1241,6 +1283,13 @@ function WlsScript(document, baseUrl) {
 
     // Clean up previous data
     updatedPriceContainer.innerHTML = '';
+
+    // Remove Reservation Fee if booking is not future
+    if (!isFutureBooking) {
+      data.invoice_line_items = data.invoice_line_items.filter(
+        (item) => !item.full_description.includes('Reservation Fee')
+      );
+    }
 
     // Fill billing details
     data.invoice_line_items.forEach((item) => {
@@ -1268,10 +1317,24 @@ function WlsScript(document, baseUrl) {
       itemRow.appendChild(itemDesc);
 
       const itemPrice = document.createElement('div');
-      itemPrice.textContent = `$${item.subtotal?.toFixed(2)}`;
+      itemPrice.textContent = `$${
+        isFutureBooking
+          ? item.subtotal?.toFixed(2)
+          : item.single_item_price?.toFixed(2)
+      }`;
       itemRow.appendChild(itemPrice);
     });
 
+    const subTotal = !isFutureBooking
+      ? data.move_in_subtotal
+      : getProratedSubtotal(data.invoice_line_items);
+
+    const total = !isFutureBooking
+      ? data.move_in_total
+      : (
+          getProratedSubtotal(data.invoice_line_items) +
+          data?.move_in_taxes_total
+        ).toFixed(2);
     // Fill sub-total
     const subTotalRow = document.createElement('div');
     subTotalRow.classList.add(
@@ -1290,7 +1353,7 @@ function WlsScript(document, baseUrl) {
 
     const subTotalPrice = document.createElement('div');
     subTotalPrice.classList.add('font-weight-600', 'blue');
-    subTotalPrice.textContent = `$${data.move_in_subtotal?.toFixed(2)}`;
+    subTotalPrice.textContent = `$${subTotal.toFixed(2)}`;
     subTotalRow.appendChild(subTotalPrice);
 
     // Fill tax
@@ -1344,11 +1407,8 @@ function WlsScript(document, baseUrl) {
       'font-weight-700',
       'text-color-red'
     );
-    totalPrice.textContent = `$${
-      reservationFee
-        ? (data.move_in_total + reservationFee.total).toFixed(2)
-        : data.move_in_total?.toFixed(2)
-    }`;
+
+    totalPrice.textContent = `$${total}`;
     totalRow.appendChild(totalPrice);
   }
 
