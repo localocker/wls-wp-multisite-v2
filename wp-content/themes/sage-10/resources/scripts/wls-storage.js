@@ -241,6 +241,13 @@ function WlsScript(document, baseUrl) {
 
       formData['discount_plans'] = discount_plan;
 
+      if (formData.military_options === 'not') {
+        formData.is_military = false;
+      } else {
+        formData.is_military = true;
+        formData.branch_of_service = formData.military_options;
+      }
+
       const costs = await PostReviewCost(true);
 
       const response = await fetch(leadUrl, {
@@ -867,6 +874,9 @@ function WlsScript(document, baseUrl) {
         passMessage ? passMessage : 'Please fill in all fields.',
         '#e62222'
       );
+
+      const formData = getFormData();
+      console.log('fromData', formData);
 
       return;
     }
