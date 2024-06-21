@@ -3,14 +3,11 @@ $company_name = get_field('company_name', 'option');
 $company_address = get_field('company_address', 'option');
 $company_phone = get_field('company_phone', 'option');
 
-$banner_image = get_field('checkout_banner_image', option);
-
-$banner_image_full_url
+$banner_image = get_field('banner_image');
 $checkout_subtitle_text = get_field('checkout_subtitle_text');
 $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','option');
 $protection_plan_summary_text_copy = get_field('protection_plan_summary_text_copy','option');
 ?>
-
 <style>
   svg[data-lastpass-icon=true] {
     visibility: none;

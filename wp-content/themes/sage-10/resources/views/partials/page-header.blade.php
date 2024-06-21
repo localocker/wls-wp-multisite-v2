@@ -8,14 +8,13 @@
     $main_color = get_field('main_color','option');
     $secondary_color = get_field('secondary_color','option');
 
-    $banner_image = get_field('checkout_banner_image', "option");
-    $banner_image_full_url = wp_get_attachment_image_src(get_field('checkout_banner_image', "option"), 'full');
-    $banner_image_large_url = wp_get_attachment_image_src(get_field('checkout_banner_image', "option"), 'large');
-    $banner_image_medium_url = wp_get_attachment_image_src(get_field('checkout_banner_image', "option"), 'medium');
+    $banner_image = get_field('banner_image');
+    $banner_image_full_url = wp_get_attachment_image_src(get_field('banner_image'), 'full');
+    $banner_image_large_url = wp_get_attachment_image_src(get_field('banner_image'), 'large');
+    $banner_image_medium_url = wp_get_attachment_image_src(get_field('banner_image'), 'medium');
     $checkout_subtitle_text = get_field('checkout_subtitle_text');
     $checkout_subtitle_text = get_field('checkout_subtitle_text');
   ?>
-
 
   <style>
     @media screen and (max-width: 575px) {
