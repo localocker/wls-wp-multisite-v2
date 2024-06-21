@@ -3,11 +3,30 @@ $company_name = get_field('company_name', 'option');
 $company_address = get_field('company_address', 'option');
 $company_phone = get_field('company_phone', 'option');
 
+$banner_image = get_field('banner_image', "option");
 $banner_image = get_field('banner_image');
+$banner_image_full_url = wp_get_attachment_image_src(get_field('banner_image'), 'full');
+$banner_image_large_url = wp_get_attachment_image_src(get_field('banner_image'), 'large');
+$banner_image_medium_url = wp_get_attachment_image_src(get_field('banner_image'), 'medium');
 $checkout_subtitle_text = get_field('checkout_subtitle_text');
 $insurance_policy_pdf_download = get_field('insurance_policy_pdf_download','option');
 $protection_plan_summary_text_copy = get_field('protection_plan_summary_text_copy','option');
 ?>
+
+<script>
+    // Convert the PHP variables to JSON objects
+    var bannerImage = <?php echo json_encode($banner_image); ?>;
+    var bannerImageFullUrl = <?php echo json_encode($banner_image_full_url); ?>;
+    var bannerImageLargeUrl = <?php echo json_encode($banner_image_large_url); ?>;
+    var bannerImageMediumUrl = <?php echo json_encode($banner_image_medium_url); ?>;
+    var companyName = <?php echo json_encode($company_name); ?>;
+
+    console.log("Banner Image: ", bannerImage);
+    console.log("Banner Image Full URL: ", bannerImageFullUrl);
+    console.log("Banner Image Large URL: ", bannerImageLargeUrl);
+    console.log("Banner Image Medium URL: ", bannerImageMediumUrl);
+    console.log("Company Name: ", companyName);
+  </script>
 <style>
   svg[data-lastpass-icon=true] {
     visibility: none;
