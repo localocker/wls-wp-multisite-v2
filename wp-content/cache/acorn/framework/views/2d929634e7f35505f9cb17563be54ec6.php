@@ -130,7 +130,7 @@
             $square_feet = get_field('square_feet');
           ?>
 
-          <div class="filtered-item">
+          <div class="filtered-item" data-unit-id="<?php echo esc_attr($unit_id); ?>">
 
             
             <div class="filter-item-image-container position-relative overflow-hidden">
@@ -314,4 +314,49 @@
 <?php endif; ?>
 
 
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const baseUrl = '<?php echo get_site_url(); ?>';
+
+    fetch(`${baseUrl}/wp-admin/admin-ajax.php?action=unit_groups_api&unit_groups_api=1`)
+      .then(response => response.json())
+      .then(data => {
+
+        const unitGroups = data.unit_groups;
+        console.log(unitGroups);
+        const unitGroupsData = unitGroups.reduce((acc, group) => {
+          acc[group.id] = group.available_units_count;
+          return acc;
+        }, {});
+
+        updateUnitsWithAvailableCounts(unitGroupsData);
+      })
+      .catch(error => console.error('Error fetching unit groups:', error));
+
+    function updateUnitsWithAvailableCounts(unitGroupsData) {
+      const units = document.querySelectorAll('.filtered-item');
+
+      units.forEach(unit => {
+        console.log(unit);
+        const unitId = unit.dataset.unitId;
+        const availableUnitsCount = unitGroupsData[unitId];
+
+        if (availableUnitsCount !== undefined) {
+          const availableCountSpan = unit.querySelector('.available-count span');
+          availableCountSpan.textContent = `${availableUnitsCount}/Available`;
+
+          // Update the reserve button based on availability
+          const reserveNowDiv = unit.querySelector('.reserve-now');
+          if (availableUnitsCount > 0) {
+            reserveNowDiv.innerHTML = `<a href="${baseUrl}/checkout/full-form/?unit_id=${unitId}" class="button is-blue is-icon is-smaller mt-0 mt-sm-1 mt-xxl-0 w-inline-block"><div>Reserve Now</div></a>`;
+          } else {
+            reserveNowDiv.innerHTML = `<div class="button is-unavailable is-icon is-smaller mt-sm-1 mt-xxl-0 w-inline-block"><div>Booked</div></div>`;
+          }
+        }
+      });
+    }
+  });
+</script>
 <?php /**PATH /Users/bengross/Local Sites/white-label-storage-b2c/app/public/wp-content/themes/sage-10/resources/views/partials/home-units.blade.php ENDPATH**/ ?>
