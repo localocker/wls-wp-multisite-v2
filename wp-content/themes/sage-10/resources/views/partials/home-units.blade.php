@@ -336,7 +336,7 @@
 
         if (availableUnitsCount !== undefined) {
           const availableCountSpan = unit.querySelector('.available-count span');
-          availableCountSpan.textContent = `${availableUnitsCount}/Available`;
+          availableCountSpan.textContent = availableUnitsCount > 0 ? `Available` : 'Unavailable';
 
           // Update the reserve button based on availability
           const reserveNowDiv = unit.querySelector('.reserve-now');
