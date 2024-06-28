@@ -42,7 +42,6 @@ class Wpwls
         add_action('admin_menu', array($this, 'add_plugin_page'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_footer', array($this, 'add_integration_test'));
-
     }
 
     /**
@@ -175,6 +174,31 @@ class Wpwls
             'wpwls_settings',
             'wpwls_settings_section'
         );
+
+        // Add Zendesk settings fields
+        add_settings_field(
+            'zendesk_subdomain',
+            __('Zendesk Subdomain', 'wpwls'),
+            array($this, 'render_zendesk_subdomain_field'),
+            'wpwls_settings',
+            'wpwls_settings_section'
+        );
+
+        add_settings_field(
+            'zendesk_email',
+            __('Zendesk Email', 'wpwls'),
+            array($this, 'render_zendesk_email_field'),
+            'wpwls_settings',
+            'wpwls_settings_section'
+        );
+
+        add_settings_field(
+            'zendesk_token',
+            __('Zendesk Token', 'wpwls'),
+            array($this, 'render_zendesk_token_field'),
+            'wpwls_settings',
+            'wpwls_settings_section'
+        );
     }
 
     /**
@@ -279,6 +303,47 @@ class Wpwls
         }
     }
 
+    /**
+     * Render the Zendesk Subdomain field.
+     */
+    public function render_zendesk_subdomain_field()
+    {
+        $value = isset($this->options['zendesk_subdomain']) ? $this->options['zendesk_subdomain'] : '';
+        ?>
+        <input type="text" name="wpwls_settings[zendesk_subdomain]" id="zendesk_subdomain" value="<?php echo esc_attr($value); ?>" />
+        <?php
+        if (!empty($value)) {
+            echo '<p class="description">' . esc_html__('Current Value: ', 'wpwls') . esc_html($value) . '</p>';
+        }
+    }
+
+    /**
+     * Render the Zendesk Email field.
+     */
+    public function render_zendesk_email_field()
+    {
+        $value = isset($this->options['zendesk_email']) ? $this->options['zendesk_email'] : '';
+        ?>
+        <input type="text" name="wpwls_settings[zendesk_email]" id="zendesk_email" value="<?php echo esc_attr($value); ?>" />
+        <?php
+        if (!empty($value)) {
+            echo '<p class="description">' . esc_html__('Current Value: ', 'wpwls') . esc_html($value) . '</p>';
+        }
+    }
+
+    /**
+     * Render the Zendesk Token field.
+     */
+    public function render_zendesk_token_field()
+    {
+        $value = isset($this->options['zendesk_token']) ? $this->options['zendesk_token'] : '';
+        ?>
+        <input type="text" name="wpwls_settings[zendesk_token]" id="zendesk_token" value="<?php echo esc_attr($value); ?>" />
+        <?php
+        if (!empty($value)) {
+            echo '<p class="description">' . esc_html__('Current Value: ', 'wpwls') . esc_html($value) . '</p>';
+        }
+    }
 
     /**
      * Sanitize plugin settings before saving.
@@ -306,9 +371,7 @@ class Wpwls
         if (isset($input['facility_slug'])) {
             $sanitized_input['facility_slug'] = sanitize_text_field($input['facility_slug']);
         }
-        if (isset($input['api_endpoint'])) {
-            $sanitized_input['api_endpoint'] = sanitize_text_field($input['api_endpoint']);
-        }
+
         if (isset($input['crm_list_id'])) {
             $sanitized_input['crm_list_id'] = sanitize_text_field($input['crm_list_id']);
         }
@@ -316,6 +379,18 @@ class Wpwls
         if (isset($input['allowed_days_in_future'])) {
             $sanitized_value = intval($input['allowed_days_in_future']);
             $sanitized_input['allowed_days_in_future'] = ($sanitized_value >= 1 && $sanitized_value <= 7) ? $sanitized_value : 1; // Default to 1 if out of range
+        }
+
+        if (isset($input['zendesk_subdomain'])) {
+            $sanitized_input['zendesk_subdomain'] = sanitize_text_field($input['zendesk_subdomain']);
+        }
+
+        if (isset($input['zendesk_email'])) {
+            $sanitized_input['zendesk_email'] = sanitize_text_field($input['zendesk_email']);
+        }
+
+        if (isset($input['zendesk_token'])) {
+            $sanitized_input['zendesk_token'] = sanitize_text_field($input['zendesk_token']);
         }
 
         return $sanitized_input;
@@ -329,8 +404,7 @@ class Wpwls
                 const apiEndpoint = '<?php echo admin_url('admin-ajax.php'); ?>';
 
                 document.getElementById('test_integration_button').addEventListener('click', function() {
-                    //prevent default os reloading the page below :
-                    
+                    // Prevent default reloading of the page
                     var accessKey = document.getElementById('api_access_key').value;
                     var accessSecret = document.getElementById('api_access_secret').value;
                     var facilityId = document.getElementById('api_facility_id').value;
@@ -367,13 +441,11 @@ class Wpwls
                 });
 
                 document.getElementById('test_crm_integration_button').addEventListener('click', function() {
-                    //prevent default os reloading the page below :
-                    
-                   
+                    // Prevent default reloading of the page
                     var crmListId = document.getElementById('crm_list_id').value;
                     var facilitySlug = document.getElementById('facility_slug').value;
 
-                    if (crmListId === '' ) {
+                    if (crmListId === '') {
                         alert('Please fill in all the required fields.');
                         return;
                     }

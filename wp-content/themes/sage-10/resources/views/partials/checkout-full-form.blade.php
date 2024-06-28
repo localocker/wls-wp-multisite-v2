@@ -999,7 +999,8 @@ $protection_plan_summary_text_copy = get_field('protection_plan_summary_text_cop
 <script>
   const baseUrl = '<?php echo get_site_url(); ?>';
   document.addEventListener("DOMContentLoaded", function() {
-    const wlsScript = new WlsScript(document, baseUrl)
+    var companyName = <?php echo json_encode(get_field('company_name', 'option')); ?>;
+    const wlsScript = new WlsScript(document, baseUrl, companyName)
     wlsScript.init()
   });
 </script>

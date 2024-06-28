@@ -244,7 +244,11 @@
                     </div>
 
                     <div class="text-size-tiny-15 text-weight-normal text-color-grey line-height-1-2 text-start text-sm-end pt-1 available-count">
-                      <!-- <span><?php echo $available_units_count; ?>/<?php echo $total_units_count; ?></span>--> <span>Available</span>
+                      <?php if($available_units_count > 0): ?>
+                        <span>Available</span>
+                      <?php else: ?>
+                        <span>Unavailable</span>
+                      <?php endif; ?>
                     </div>
                   </div>
 
@@ -345,7 +349,7 @@
 
         if (availableUnitsCount !== undefined) {
           const availableCountSpan = unit.querySelector('.available-count span');
-          availableCountSpan.textContent = `${availableUnitsCount}/Available`;
+          availableCountSpan.textContent = availableUnitsCount > 0 ? `Available` : 'Unavailable';
 
           // Update the reserve button based on availability
           const reserveNowDiv = unit.querySelector('.reserve-now');

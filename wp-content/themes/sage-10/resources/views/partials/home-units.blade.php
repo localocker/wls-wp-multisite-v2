@@ -236,7 +236,11 @@
                     </div>
 
                     <div class="text-size-tiny-15 text-weight-normal text-color-grey line-height-1-2 text-start text-sm-end pt-1 available-count">
-                      <!-- <span>{!! $available_units_count !!}/{!! $total_units_count !!}</span>--> <span>Available</span>
+                      @if($available_units_count > 0)
+                        <span>Available</span>
+                      @else
+                        <span>Unavailable</span>
+                      @endif
                     </div>
                   </div>
 

@@ -11,7 +11,45 @@
 // 2. Update Copy and Receipt for Lead Reservation -Thank you message
 // 5. Update all date pickers to match
 
-function WlsScript(document, baseUrl) {
+function WlsScript(document, baseUrl, facilityName) {
+  const BASE_URL = baseUrl;
+  let checkoutTimerId;
+  localStorage.clear();
+  localStorage.setItem('facility_name', facilityName);
+
+  function startCheckoutTimer(firstName, lastName, email, phone) {
+    console.log('Starting checkout timer...');
+    checkoutTimerId = setTimeout(() => {
+      console.log('5 minutes elapsed. Creating Zendesk ticket...');
+      createZendeskTicket(firstName, lastName, email, phone);
+    }, 5 * 60 * 1000); // 5 minutes
+    localStorage.setItem('checkout_in_progress', 'true');
+  }
+
+  function clearCheckoutTimer() {
+    if (checkoutTimerId) {
+      clearTimeout(checkoutTimerId);
+      console.log('Checkout timer cleared.');
+      localStorage.setItem('checkout_in_progress', 'false');
+    }
+  }
+
+  window.addEventListener('beforeunload', (event) => {
+    console.log('Window unload detected. Clearing checkout timer...');
+    // Create a Zendesk ticket if the user tries to close the window
+    const isCheckoutInProgress =
+      localStorage.getItem('checkout_in_progress') === 'true';
+    if (isCheckoutInProgress) {
+      const firstName = localStorage.getItem('first_name');
+      const lastName = localStorage.getItem('last_name');
+      const email = localStorage.getItem('email');
+      const phone = localStorage.getItem('phone');
+      console.log('Window unload detected. Creating Zendesk ticket...');
+      createZendeskTicket(firstName, lastName, email, phone);
+    }
+  });
+
+  // Function to toggle password visibility
   clickElementById('togglePassword', function (e) {
     const passwordInput = document.getElementById('password');
     const type =
@@ -19,8 +57,7 @@ function WlsScript(document, baseUrl) {
     passwordInput.setAttribute('type', type);
   });
 
-  const BASE_URL = baseUrl;
-  localStorage.clear();
+  console.log(checkoutTimerId);
 
   const applyDiscount = () => {
     let error = false;
@@ -201,6 +238,16 @@ function WlsScript(document, baseUrl) {
     } else {
       console.log('Performing booking...');
       await performBooking(formData, type);
+    }
+
+    // Clear the checkout timer on successful checkout
+    localStorage.setItem('checkout_in_progress', 'false');
+    clearCheckoutTimer();
+
+    // Update Zendesk ticket to resolved
+    const ticketId = localStorage.getItem('zendesk_ticket_id');
+    if (ticketId) {
+      await updateZendeskTicket(ticketId);
     }
   };
 
@@ -688,6 +735,10 @@ function WlsScript(document, baseUrl) {
 
         localStorage.setItem('lead_id', JSON.stringify(data.id));
         localStorage.setItem('tenant_id', JSON.stringify(data.tenant_id));
+
+        // Start the checkout timer
+        localStorage.setItem('checkout_in_progress', 'true');
+        startCheckoutTimer(firstName, lastName, email, phone);
       } catch (error) {
         console.error('Error:', error);
         showToast(
@@ -699,6 +750,98 @@ function WlsScript(document, baseUrl) {
       // Move to the next step
       changingSteps('#collapseTwo', '#collapseOne', undefined);
     });
+  }
+
+  async function createZendeskTicket(firstName, lastName, email, phone) {
+    const { facilityName, snakeFacilityName, unitDetails } =
+      getFormattedUnitDetails();
+
+    try {
+      const zendeskResponse = await fetch(
+        `${BASE_URL}/wp-admin/admin-ajax.php?action=create_zendesk_ticket`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ticket: {
+              subject: `${facilityName} - Website Checkout Lead`,
+              comment: {
+                body: `New lead from website checkout:\n\nFacility: ${facilityName}\nName: ${firstName} ${lastName}\nEmail: ${email}\nPhone: ${phone}\nUnit Description: ${unitDetails}`,
+              },
+              priority: 'urgent',
+              tags: ['website_checkout_lead', snakeFacilityName],
+              custom_fields: [
+                { id: 30669643139091, value: `${firstName} ${lastName}` },
+                { id: 30669675556883, value: email },
+                { id: 30669672929811, value: phone },
+                { id: 30669552590483, value: unitDetails },
+                { id: 30669524715283, value: facilityName },
+              ],
+              brand_id: 29862965968915,
+            },
+          }),
+        }
+      );
+
+      const zendeskData = await zendeskResponse.json();
+
+      if (zendeskResponse.ok) {
+        localStorage.setItem('zendesk_ticket_id', zendeskData.ticket.id); // Store ticket ID
+        console.log('Zendesk ticket created:', zendeskData);
+      } else {
+        console.error('Error creating Zendesk ticket');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  async function updateZendeskTicket(ticketId) {
+    try {
+      const zendeskResponse = await fetch(
+        `${BASE_URL}/wp-admin/admin-ajax.php?action=update_zendesk_ticket&ticket_id=${ticketId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ticket: {
+              status: 'solved',
+            },
+          }),
+        }
+      );
+
+      const zendeskData = await zendeskResponse.json();
+
+      if (zendeskResponse.ok) {
+        console.log('Zendesk ticket updated:', zendeskData);
+      } else {
+        console.error('Error updating Zendesk ticket:', zendeskData);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+
+  function getFormattedUnitDetails() {
+    const facilityName = localStorage.getItem('facility_name');
+    const snakeFacilityName = facilityName.split(' ').join('_');
+
+    const unit = JSON.parse(localStorage.getItem('unit'));
+
+    const unitDetails = `\n\nRate: ${
+      unit?.standard_rate ? '$' + unit.standard_rate : 'N/A'
+    }\nSize: ${unit?.size ? unit.size : 'N/A'}\nType: ${
+      unit?.unit_type?.name ? unit.unit_type.name : 'N/A'
+    }\nDescription: ${
+      unit?.description ? unit.description : 'N/A'
+    }\nAccess Type: ${unit?.access_type ? unit.access_type : 'N/A'}`;
+
+    return { facilityName, snakeFacilityName, unitDetails };
   }
 
   const formatMoveInDate = (date) => {

@@ -52,6 +52,10 @@ class Wpwls_JSON_Endpoint
         add_action('wp_ajax_nopriv_units_from_group_api', array($this, 'units_from_group_api'));
         add_action('wp_ajax_days_in_future_api', array($this, 'days_in_future_api'));
         add_action('wp_ajax_nopriv_days_in_future_api', array($this, 'days_in_future_api'));
+        add_action('wp_ajax_create_zendesk_ticket', array($this, 'create_zendesk_ticket'));
+        add_action('wp_ajax_nopriv_create_zendesk_ticket', array($this, 'create_zendesk_ticket'));
+        add_action('wp_ajax_update_zendesk_ticket', array($this, 'update_zendesk_ticket'));
+        add_action('wp_ajax_nopriv_update_zendesk_ticket', array($this, 'update_zendesk_ticket'));
     }
 
     private function send_json_response($data, $status_code = 200)
@@ -425,4 +429,98 @@ class Wpwls_JSON_Endpoint
             $this->send_json_response(0);
         }
     }
+
+    public function create_zendesk_ticket()
+    {
+        $request_body = file_get_contents('php://input');
+        $request_data = json_decode($request_body, true);
+    
+        // Check if the request_data contains the 'ticket' key
+        if (!isset($request_data['ticket'])) {
+            $this->send_json_error_response('Invalid request data: ticket information missing.', 400);
+            return;
+        }
+    
+        // Prepare the ticket data without filtering
+        $ticket_data = array('ticket' => $request_data['ticket']);
+    
+        // Get Zendesk API credentials from plugin options
+        $options = $this->plugin_instance->get_options_for_json_endpoint();
+        $zendesk_subdomain = $options['zendesk_subdomain'] ?? '';
+        $zendesk_email = $options['zendesk_email'] ?? '';
+        $zendesk_token = $options['zendesk_token'] ?? '';
+    
+        if (empty($zendesk_subdomain) || empty($zendesk_email) || empty($zendesk_token)) {
+            $this->send_json_error_response('Zendesk API credentials are not configured properly.', 500);
+            return;
+        }
+    
+        $zendesk_url = "https://{$zendesk_subdomain}.zendesk.com/api/v2/tickets.json";
+        $headers = array(
+            'Authorization' => 'Basic ' . base64_encode("{$zendesk_email}/token:{$zendesk_token}"),
+            'Content-Type' => 'application/json'
+        );
+    
+        // Send request to Zendesk API
+        $response = wp_remote_post($zendesk_url, array(
+            'body' => json_encode($ticket_data),
+            'headers' => $headers
+        ));
+    
+        if (is_wp_error($response)) {
+            $this->send_json_error_response('Error occurred while making Zendesk API request: ' . $response->get_error_message(), 400);
+        } else {
+            $response_body = wp_remote_retrieve_body($response);
+            $this->send_json_response(json_decode($response_body, true), wp_remote_retrieve_response_code($response));
+        }
+    }
+
+    public function update_zendesk_ticket()
+    {
+        $request_body = file_get_contents('php://input');
+        $request_data = json_decode($request_body, true);
+        $ticket_id = $_GET['ticket_id'];
+
+        // Check if the request_data contains the 'ticket' key
+        if (!isset($request_data['ticket'])) {
+            $this->send_json_error_response('Invalid request data: ticket information missing.', 400);
+            return;
+        }
+
+        // Prepare the ticket data
+        $ticket_data = array('ticket' => $request_data['ticket']);
+
+        // Get Zendesk API credentials from plugin options
+        $options = $this->plugin_instance->get_options_for_json_endpoint();
+        $zendesk_subdomain = $options['zendesk_subdomain'] ?? '';
+        $zendesk_email = $options['zendesk_email'] ?? '';
+        $zendesk_token = $options['zendesk_token'] ?? '';
+
+        if (empty($zendesk_subdomain) || empty($zendesk_email) || empty($zendesk_token)) {
+            $this->send_json_error_response('Zendesk API credentials are not configured properly.', 500);
+            return;
+        }
+
+        $zendesk_url = "https://{$zendesk_subdomain}.zendesk.com/api/v2/tickets/{$ticket_id}.json";
+        $headers = array(
+            'Authorization' => 'Basic ' . base64_encode("{$zendesk_email}/token:{$zendesk_token}"),
+            'Content-Type' => 'application/json'
+        );
+
+        // Send request to Zendesk API
+        $response = wp_remote_request($zendesk_url, array(
+            'method' => 'PUT',
+            'body' => json_encode($ticket_data),
+            'headers' => $headers
+        ));
+
+        if (is_wp_error($response)) {
+            $this->send_json_error_response('Error occurred while making Zendesk API request: ' . $response->get_error_message(), 400);
+        } else {
+            $response_body = wp_remote_retrieve_body($response);
+            $this->send_json_response(json_decode($response_body, true), wp_remote_retrieve_response_code($response));
+        }
+    }
+
+
 }
