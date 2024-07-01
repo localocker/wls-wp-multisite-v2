@@ -1,9 +1,8 @@
 /**
  * Function that generates HTML based on parameters
  * @param {string} data Any info
- * @returns {void} Returns the HTML based in parameters.
+ * @returns {void} Returns the HTML based on parameters.
  */
-
 function generateHTML(data) {
   const moveInData = data.move_in_unit_event;
   const email = localStorage.getItem('email');
@@ -27,7 +26,6 @@ function generateHTML(data) {
               <strong class="black d-block pb-1">Your Information</strong>
               <div>Name: ${moveInData.tenant_name || '[Not informed]'}</div>
               <div>Email: ${email || '[Not informed]'}</div>
-
             </div>
           </div>
 
@@ -96,10 +94,10 @@ function generateHTML(data) {
             <div class="border-light-gray background-white border-radius-8px blue p-3 h-100">
               <strong class="black d-block pb-1">Unit Information</strong>
               <div>Unit Number: ${
-                moveInData.unit_name || '[Not informed]'
+                moveInData?.unit_name || '[Not informed]'
               }</div>
               <div>Gate Access Code: ${
-                moveInData.gate_access_code || '[Not informed]'
+                moveInData?.gate_access_code || '[Not informed]'
               }</div>
             </div>
           </div>
@@ -108,34 +106,54 @@ function generateHTML(data) {
             <div class="border-light-gray background-white border-radius-8px blue p-3 h-100">
               <strong class="black d-block pb-1">Invoice Period</strong>
               <div>Period: ${
-                moveInData.invoice_period || '[Not informed]'
+                moveInData?.invoice_period || '[Not informed]'
               }</div>
               <div>Move-in Subtotal: $${formatCurrency(
-                moveInData.move_in_subtotal
+                moveInData?.move_in_subtotal
               )}</div>
               <div>Move-in Taxes Total: $${formatCurrency(
-                moveInData.move_in_taxes_total
+                moveInData?.move_in_taxes_total
               )}</div>
               <div>Move-in Total: $${formatCurrency(
-                moveInData.move_in_total
+                moveInData?.move_in_total
               )}</div>
             </div>
           </div>
         </div>
 
-      </div>
+      </div
     </div>
+  `;
 
-    <div class="col-12 mb-4">
-      <div class="bordered-box background-lightest-gray p-3 p-xl-4 border-radius-8px">
-
-        <h3 class="lined-header mb-3">Thank You!</h3>
-        <p class="font-weight-700 black mb-0">
-          Welcome to your new storage unit!
-        </p>
-
+  if (data.status === 'reserved') {
+    responseComponent += `
+      <div class="col-12 mb-4">
+        <div class="bordered-box background-lightest-gray p-3 p-xl-4 border-radius-8px">
+          <h3 class="lined-header mb-3">Thank You!</h3>
+          <p class="font-weight-700 black mb-0">
+            Thank You for making a reservation. You will be sent a lease to sign on your move-in date.
+          </p>
+          <div>Reservation Date: ${new Date(
+            data.desired_move_in_date
+          ).toLocaleDateString()}</div>
+          <div>Confirmation Number: ${
+            data.confirmation_number || '[Not informed]'
+          }</div>
+        </div>
       </div>
-    </div>
     `;
+  } else {
+    responseComponent += `
+      <div class="col-12 mb-4">
+        <div class="bordered-box background-lightest-gray p-3 p-xl-4 border-radius-8px">
+          <h3 class="lined-header mb-3">Thank You!</h3>
+          <p class="font-weight-700 black mb-0">
+            Welcome to your new storage unit!
+          </p>
+        </div>
+      </div>
+    `;
+  }
+
   return responseComponent;
 }

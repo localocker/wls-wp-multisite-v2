@@ -52,6 +52,8 @@ class Wpwls_JSON_Endpoint
         add_action('wp_ajax_nopriv_units_from_group_api', array($this, 'units_from_group_api'));
         add_action('wp_ajax_days_in_future_api', array($this, 'days_in_future_api'));
         add_action('wp_ajax_nopriv_days_in_future_api', array($this, 'days_in_future_api'));
+        add_action('wp_ajax_gate_code_check', array($this, 'gate_code_check'));
+        add_action('wp_ajax_nopriv_gate_code_check', array($this, 'gate_code_check'));
     }
 
     private function send_json_response($data, $status_code = 200)
@@ -295,19 +297,37 @@ class Wpwls_JSON_Endpoint
     public function lead_api()
     {
         $body = file_get_contents('php://input');
-
+        $options = $this->plugin_instance->get_options_for_json_endpoint();
+    
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $options = $this->plugin_instance->get_options_for_json_endpoint();
             $endpoint = '/leads';
             $url = $this->default_base_url . $options['api_facility_id'] . $endpoint;
             $headers = getRequestHeaders($url, 'POST', $this->plugin_instance);
+    
+            $data = fetchInitialLeadDataFromApi($body, $url, $headers);
+            $this->send_json_response($data);
+        } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+         
+            // Extract lead_id from the URL
+            if (!isset($_GET['lead_id'])) {
+                $this->send_json_error_response('Missing lead_id parameter for PUT request');
+                return;
+            }
+            
+            $endpoint = "/leads";
+            $facility_id = $options['api_facility_id'];
+            $url = $this->default_base_url . $options['api_facility_id'] . $endpoint .  '/' . $_GET['lead_id'];;
+        
+            $headers = getRequestHeaders($url, 'PUT', $this->plugin_instance);
+           
+            $data = fetchPUTLeadDataFromApi($body, $url, $headers);
 
-            $data =  fetchLeadDataFromApi($body, $url, $headers);
             $this->send_json_response($data);
         } else {
-            $this->send_json_error_response('Invalid request method invalid');
+            $this->send_json_error_response('Invalid request method');
         }
     }
+    
 
 
     public function move_in_api()
@@ -316,19 +336,23 @@ class Wpwls_JSON_Endpoint
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            $options = $this->plugin_instance->get_options_for_json_endpoint();
-
-            $endpointLead = '/leads';
-            $urlLead = $this->default_base_url . $options['api_facility_id'] . $endpointLead;
-            $headersLead = getRequestHeaders($urlLead, 'POST', $this->plugin_instance);
-
-            $lead_data = fetchLeadDataFromApi($request_body, $urlLead, $headersLead);
-
-
-
-            if (!isset($lead_data['id'])) {
-                return $this->send_json_error_response($lead_data);
+            if (!isset($_GET['lead_id'])) {
+                $this->send_json_error_response('Missing lead_id parameter for PUT request');
+                return;
             }
+
+            $options = $this->plugin_instance->get_options_for_json_endpoint();
+            $lead_id = $_GET['lead_id'];
+            // $endpointLead = '/leads';
+            // $urlLead = $this->default_base_url . $options['api_facility_id'] . $endpoint .  '/' . $_GET['lead_id'];;
+            // $headersLead = getRequestHeaders($urlLead, 'PUT', $this->plugin_instance);
+
+            // $lead_data = fetchPUTLeadDataFromApi($request_body, $urlLead, $headersLead);
+
+
+            // if (!isset($lead_data['id'])) {
+            //     return $this->send_json_error_response($lead_data);
+            // }
 
             $endpoint = '/move_ins/process_move_in';
             $url = $this->default_base_url . $options['api_facility_id'] . $endpoint;
@@ -336,7 +360,8 @@ class Wpwls_JSON_Endpoint
 
 
             $form_data = json_decode($request_body, true);
-            $form_data['tenant_id'] = $lead_data['id'];
+            $form_data['lead_id'] = $lead_data['id'];
+           
 
             $modified_body = json_encode($form_data);
             $move_in_result = fetchMoveInDataFromApi($modified_body, $url, $headers);
@@ -402,4 +427,42 @@ class Wpwls_JSON_Endpoint
             $this->send_json_response(0);
         }
     }
+
+    public function gate_code_check()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $options = $this->plugin_instance->get_options_for_json_endpoint();
+            $endpoint = 'gate_codes/availability_check';
+            $url = $this->default_base_url . $options['api_facility_id'] . '/' . $endpoint;
+            $headers = getRequestHeaders($url, 'POST', $this->plugin_instance);
+    
+            $maxTries = 5;
+            $isValid = false;
+            $gateCode = '';
+    
+            for ($i = 0; $i < $maxTries; $i++) {
+                $gateCode = $this->generate_random_gate_code();
+                $data = fetch_gate_code_check_data_from_api($gateCode, $url, $headers);
+    
+                if (isset($data['availability_check']['available']) && $data['availability_check']['available']) {
+                    $isValid = true;
+                    break;
+                }
+            }
+    
+            if ($isValid) {
+                $this->send_json_response(['gate_code' => $gateCode]);
+            } else {
+                $this->send_json_error_response('Unable to generate a valid gate code after ' . $maxTries . ' attempts.');
+            }
+        } else {
+            $this->send_json_error_response('Invalid request method.');
+        }
+    }
+    
+    private function generate_random_gate_code()
+    {
+        return str_pad(rand(0, 99999), 5, '0', STR_PAD_LEFT);
+    }
+    
 }

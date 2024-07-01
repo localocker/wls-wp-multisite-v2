@@ -144,3 +144,22 @@ function fetchMoveInDataFromApi($formData, $url, $headers)
         return json_encode(array('status' => 400, 'error' => "[NewMoveInService] Failed to Move-In " . $error_message, 'data' => $formDataArray));
     }
 }
+
+function fetch_gate_code_check_data_from_api($gateCode, $url, $headers)
+{
+    $payload = json_encode(array('availability_check' => array('gate_access_code' => $gateCode)));
+
+    $response = wp_remote_post($url, array(
+        'headers' => $headers,
+        'body' => $payload,
+        'timeout' => 60,
+    ));
+
+    if (is_wp_error($response)) {
+        error_log('Error fetching gate code check data: ' . $response->get_error_message());
+        return [];
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    return json_decode($body, true);
+}

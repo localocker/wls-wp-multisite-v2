@@ -1,10 +1,9 @@
-
 function WlsScript(document, baseUrl) {
-  const BASE_URL = baseUrl
+  const BASE_URL = baseUrl;
 
   const applyDiscount = () => {
     const discount_code = document.getElementById('discount_code').value;
-    console.log('promotional code', discount_code)
+    console.log('promotional code', discount_code);
     // const unit_id = document.getElementById('unit_id').value;
     // const amount_due = document.getElementById('amount_due').innerText;
     fetch(`${remoteUrl}?action=promotional_code_api`, {
@@ -13,8 +12,8 @@ function WlsScript(document, baseUrl) {
         headers: { 'Content-Type': 'application/json' },
       },
       body: JSON.stringify({ promotional_code: discount_code }),
-    })
-  }
+    });
+  };
 
   const init = () => {
     console.log('DOM fully loaded and parsed');
@@ -35,13 +34,15 @@ function WlsScript(document, baseUrl) {
     <div class="spinner-border" role="status">
             </div>
           </div>
-          <span style="vertical-align: middle;">Hold tight, we are booking your unit. Please don't close or refresh this page...</span>`;
+          <span style="vertical-align: middle;">TEST, we are booking your unit. Please don't close or refresh this page...</span>`;
     submitButton.style.pointerEvents = 'none';
     const formData = getFormData();
     if (!validateForm(formData, ['discount_code', 'address2', 's'])) {
       resetSubmitButton();
       return;
     }
+
+    console.log(' Booking formData', formData);
 
     const bookingUrl = `${BASE_URL}/wp-admin/admin-ajax.php?action=lead_api`;
     fetch(bookingUrl, {
@@ -102,7 +103,7 @@ function WlsScript(document, baseUrl) {
   };
 
   const handleError = (error) => {
-    console.log(error)
+    console.log(error);
     showToast(`There was a problem: ${error}`, '#e62222');
     resetSubmitButton();
     console.error('[catch] : There was a problem', error);
@@ -250,18 +251,21 @@ function WlsScript(document, baseUrl) {
           <div class="col-12 col-md-6 col-lg-4 mt-3">
             <div class="border-light-gray background-white border-radius-8px blue p-3 h-100">
               <strong class="black d-block pb-1">Unit Information</strong>
-              <div>Unit Number: ${moveInData.unit_name || '[Not informed]'
-      }</div>
-              <div>Gate Access Code: ${data.gate_access_code || '[Not informed]'
-      }</div>
+              <div>Unit Number: ${
+                moveInData.unit_name || '[Not informed]'
+              }</div>
+              <div>Gate Access Code: ${
+                data.gate_access_code || '[Not informed]'
+              }</div>
               <div>Move-in Date: ${data.desired_move_in_date}</div>
             </div>
           </div>
 
           <div class="col-12 col-md-6 col-lg-4 mt-3">
             <div class="border-light-gray background-white border-radius-8px blue p-3 h-100">
-              <strong class="black d-block pb-1">Invoice Period: ${moveInData.invoice_period || '[Not informed]'
-      }</strong>
+              <strong class="black d-block pb-1">Invoice Period: ${
+                moveInData.invoice_period || '[Not informed]'
+              }</strong>
               <div>Move-in Subtotal: ${moveInData.move_in_subtotal}</div>
               <div>Move-in Taxes Total: ${moveInData.move_in_taxes_total}</div>
               <div>Move-in Total: ${moveInData.move_in_total}</div>
@@ -287,17 +291,21 @@ function WlsScript(document, baseUrl) {
   }
 
   function handleStep1() {
-
-    document.getElementById("step1").addEventListener("click", function () {
+    document.getElementById('step1').addEventListener('click', function () {
       // Get form fields
-      var firstName = document.getElementById("first_name").value;
-      var lastName = document.getElementById("last_name").value;
-      var email = document.getElementById("email").value;
-      var phone = document.getElementById("phone").value;
+      var firstName = document.getElementById('first_name').value;
+      var lastName = document.getElementById('last_name').value;
+      var email = document.getElementById('email').value;
+      var phone = document.getElementById('phone').value;
 
       // Perform validation
-      if (firstName.trim() === '' || lastName.trim() === '' || email.trim() === '' || phone.trim() === '') {
-        alert("Please fill in all fields.");
+      if (
+        firstName.trim() === '' ||
+        lastName.trim() === '' ||
+        email.trim() === '' ||
+        phone.trim() === ''
+      ) {
+        alert('Please fill in all fields.');
         return;
       }
 
@@ -305,37 +313,40 @@ function WlsScript(document, baseUrl) {
       fetch(`${BASE_URL}/wp-admin/admin-ajax.php?action=crm_api`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           first_name: firstName,
           last_name: lastName,
           email: email,
           phone: phone,
-          unit_id:getUnitIdFromUrl()
+          unit_id: getUnitIdFromUrl(),
           // Add other fields as needed
-        })
+        }),
       })
-        .then(response => {
+        .then((response) => {
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
           return response.json();
         })
-        .then(data => {
+        .then((data) => {
           console.log(data);
           // Close the current accordion
-          var accordion = document.querySelector("#collapseOne");
+          var accordion = document.querySelector('#collapseOne');
           var accordionInstance = new bootstrap.Collapse(accordion);
           accordionInstance.hide();
 
           // Open the next accordion
-          var nextAccordion = document.querySelector("#collapseTwo");
+          var nextAccordion = document.querySelector('#collapseTwo');
           var nextAccordionInstance = new bootstrap.Collapse(nextAccordion);
           nextAccordionInstance.show();
         })
-        .catch(error => {
-          console.error('There was a problem with your fetch operation:', error);
+        .catch((error) => {
+          console.error(
+            'There was a problem with your fetch operation:',
+            error
+          );
         });
     });
   }
